@@ -24,3 +24,7 @@
 #### 运行截图
 
 <img src="./屏幕截图.gif" alt="屏幕截图"/>
+
+#### 问题解决
+
+* 无法克隆仓库，命令改为`git clone ssh://git@ssh.github.com:443/czl0325/football_analysis.git`
