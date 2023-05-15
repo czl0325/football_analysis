@@ -53,7 +53,7 @@ asia_map = {
 }
 match_map = {
     "group1": ["英超", "英甲", "西甲", "意甲", "法甲", "德甲", "葡超", "荷甲", "英冠", "英足总杯", "欧冠", "欧罗巴", "德国杯", "意超杯", "意杯", "法国杯", "西班牙杯", "非洲杯", "欧洲杯", "解放者杯"],
-    "group2": ["西乙", "西丙1", "西丙2", "西丙3", "西丙4", "西协甲", "意乙", "意丙1A", "意丙1B", "法乙", "法丙", "德乙", "葡甲", "荷乙", "比杯", "瑞典超", "丹超", "瑞士超", "克罗甲", "塞甲联", "波甲", "苏冠", "苏甲", "土超", "土甲", "波乙", "苏超", "瑞士甲", "丹甲", "罗甲", "英乙", "比乙", "保超", "挪超", "挪甲", "德东北", "爱超", "爱甲", "黑山甲", "阿巴超", "埃及甲", "摩洛超", "阿尔及甲", "捷甲", "捷克乙", "黑山甲", "阿甲", "巴甲", "巴圣锦", "巴乙", "阿乙", "乌拉超", "智利甲", "厄瓜多尔甲", "秘鲁甲", "巴拉圭联", "墨西联", "墨西乙", "哥斯甲", "哥甲", "美职联", "澳超", "日职", "日联杯", "K1联赛", "K2联赛", "印度超", "印度甲", "印尼超", "澳南超", "澳维超", "越南联", "伊朗超", "伊朗甲", "阿联超", "马来超", "泰超", "波乙", "巴西杯", "欧会杯", "乌兹超", "冰岛联", "沙特联", "波黑超", "澳昆超", "中超", "中甲", "智甲", "斯洛文甲", "南非超", "冰岛超", "卡塔联", "亚冠杯"],
+    "group2": ["西乙", "西丙1", "西丙2", "西丙3", "西丙4", "西协甲", "意乙", "意丙1A", "意丙1B", "法乙", "法丙", "德乙", "葡甲", "荷乙", "比杯", "瑞典超", "丹超", "瑞士超", "克罗甲", "塞甲联", "波甲", "波乙", "苏冠", "苏甲", "土超", "土甲", "苏超", "瑞士甲", "丹甲", "罗甲", "英乙", "比乙", "保超", "挪超", "挪甲", "德东北", "爱超", "爱甲", "黑山甲", "阿巴超", "埃及甲", "摩洛超", "阿尔及甲", "捷甲", "捷克乙", "黑山甲", "阿甲", "巴甲", "巴圣锦", "巴乙", "阿乙", "乌拉超", "智利甲", "厄瓜多尔甲", "秘鲁甲", "巴拉圭联", "墨西联", "墨西乙", "哥斯甲", "哥甲", "美职联", "澳超", "日职", "日联杯", "K1联赛", "K2联赛", "印度超", "印度甲", "印尼超", "澳南超", "澳维超", "越南联", "伊朗超", "伊朗甲", "阿联超", "马来超", "泰超", "巴西杯", "欧会杯", "乌兹超", "冰岛联", "沙特联", "波黑超", "澳昆超", "中超", "中甲", "智甲", "斯洛文甲", "南非超", "冰岛超", "卡塔联", "亚冠杯", "希腊超A"],
     "group_inaccuracy": ["韩足杯", "日职乙", "乌超", "比甲"]
 }
 error_odds = Decimal('0.02')
@@ -67,8 +67,8 @@ def parse_fundamentals(match, url):
     match_group = html2.xpath("//div[@class='odds_header']//table//tr/td[3]//a[@class='hd_name']/text()")
     if len(match_group) > 0:
         match["match_group"] = match_group[0].strip()
-        match_type = re.findall(r"(.*?)(第|分组|小组|资格|半|决|十六|八|季军|外围|排名)", match["match_group"])
-        match_category = re.findall(r"\d+/?\d+(.*?)(第|分组|小组|资格|半|决|十六|八|季军|外围|秋季|排名)", match["match_group"])
+        match_type = re.findall(r"(.*?)(第|分组|小组|资格|半|决|十六|八|季军|外围|排名|附加)", match["match_group"])
+        match_category = re.findall(r"\d+/?\d+(.*?)(第|分组|小组|资格|半|决|十六|八|季军|外围|秋季|排名|附加)", match["match_group"])
         match_round = re.findall(r"第(\d+)轮", match["match_group"])
         if len(match_type):
             match["match_type"] = match_type[0][0]
@@ -849,7 +849,7 @@ def analyse_match():
         match_time = time.strptime(match_time, "%Y-%m-%d %H:%M")
         current_time = time.strftime('%Y-%m-%d %H:%M', time.localtime(time.time()))
         time_diff = time.mktime(match_time) - time.mktime(time.strptime(current_time, "%Y-%m-%d %H:%M"))
-        if time_diff < -60 * 60:
+        if time_diff < -60 * 60 * 0:
             continue
         if time_diff > 3600 * 2 and is_start == "未":
             break
@@ -884,8 +884,7 @@ def analyse_match():
     db.close()
 
 
-def analyse_detail():
-    detail_url = "https://odds.500.com/fenxi/shuju-1090225.shtml"
+def analyse_detail(detail_url):
     match_item = {"url": detail_url}
     match_item = parse_fundamentals(match_item, detail_url)
     if "field_score" in match_item:
@@ -902,4 +901,4 @@ def analyse_detail():
 
 if __name__ == '__main__':
     analyse_match()
-    # analyse_detail()
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1090225.shtml")
