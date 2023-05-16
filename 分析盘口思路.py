@@ -851,7 +851,7 @@ def analyse_match():
         time_diff = time.mktime(match_time) - time.mktime(time.strptime(current_time, "%Y-%m-%d %H:%M"))
         if time_diff < -60 * 60 * 0:
             continue
-        if time_diff > 3600 * 2 and is_start == "未":
+        if time_diff > 3600 * 4 and is_start == "未":
             break
         is_friend = tr.xpath("./td[2]/a/text()")
         if len(is_friend) <= 0:
