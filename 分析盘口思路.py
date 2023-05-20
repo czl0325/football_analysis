@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import requests
 from lxml import etree
 import pymysql
@@ -849,7 +850,7 @@ def analyse_match():
         match_time = time.strptime(match_time, "%Y-%m-%d %H:%M")
         current_time = time.strftime('%Y-%m-%d %H:%M', time.localtime(time.time()))
         time_diff = time.mktime(match_time) - time.mktime(time.strptime(current_time, "%Y-%m-%d %H:%M"))
-        if time_diff < -60 * 60 * 1:
+        if time_diff < 3600 * 1:
             continue
         if time_diff > 3600 * 2 and is_start == "未":
             break

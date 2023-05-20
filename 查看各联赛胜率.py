@@ -1,6 +1,5 @@
 import pandas as pd
 import re
-import math
 
 df = pd.read_excel('结果分析.xlsx', sheet_name='让球匹配')
 winRate = {}
