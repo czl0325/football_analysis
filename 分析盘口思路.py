@@ -388,7 +388,7 @@ def parse_asia(match, url):
             result = cursor.fetchall()
             if len(result) > 0:
                 print(f"\033[1;34;43m对比本联赛，该盘口下胜率为：{result}\033[0m")
-    if {"home_team_rank", "visit_team_rank", "home_score", "visit_score", "team_count", "match_round"}.issubset(match.keys()):
+    if {"home_team_rank", "visit_team_rank", "home_score", "visit_score", "team_count", "match_round", "instant_pan_most"}.issubset(match.keys()):
         if match["match_round"] >= match["team_count"] / 2 + 1:
             if match["home_team_rank"] <= match["visit_team_rank"] - (match["team_count"] / 2) and match["home_score"] >= match["visit_score"] + 15:
                 if match["instant_pan_most"] >= -0.25:
@@ -882,7 +882,9 @@ def analyse_match():
             print("不准确的联赛，暂不预测")
             continue
         match_item = parse_europe(match_item, detail_url.replace("shuju", "ouzhi"))
+        time.sleep(3)
         match_item = parse_asia(match_item, detail_url.replace("shuju", "yazhi"))
+        time.sleep(3)
         match_item = parse_size(match_item, detail_url.replace("shuju", "daxiao"))
         time.sleep(3)
     db.close()
