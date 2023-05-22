@@ -1,6 +1,5 @@
 import pandas as pd
 import re
-import math
 
 df = pd.read_excel('结果分析.xlsx', sheet_name='让球匹配')
 winRate = {}
@@ -25,7 +24,7 @@ for index, row in df.iterrows():
         winRate[match_category]["正确"] += 1
     else:
         winRate[match_category]["错误"] += 1
-sorted_dict = sorted(winRate.items(), key=lambda kv: kv[1]["正确"], reverse=True)
+sorted_dict = sorted(winRate.items(), key=lambda kv: (kv[1]["正确"] - kv[1]["错误"]), reverse=True)
 for item in sorted_dict:
     print(item)
 

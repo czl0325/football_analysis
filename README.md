@@ -5,10 +5,12 @@
 #### 项目运行
 
 * 1.安装python运行环境
+自行百度，按教程按照，安装后命令行输入`python3 --version`，有显示版本号即安装成功
 * 2.安装依赖包<br>
-进行项目目录下执行`pip install --upgrade -r requirement.txt -i https://mirrors.bfsu.edu.cn/pypi/web/simple`
+命令行进入项目目录下执行`pip install --upgrade -r requirement.txt -i https://mirrors.bfsu.edu.cn/pypi/web/simple`
 * 3.直接运行分析盘口思路.py文件即可<br>
 `python3 分析盘口思路.py`
+推荐使用pycharm运行，效果比较好
 
 
 #### 待优化问题
