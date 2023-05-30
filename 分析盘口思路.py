@@ -914,5 +914,5 @@ def analyse_detail(detail_url):
 
 
 if __name__ == '__main__':
-    # analyse_match()
-    analyse_detail("https://odds.500.com/fenxi/shuju-1090804.shtml")
+    analyse_match()
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1090804.shtml")
