@@ -11,6 +11,23 @@ from decimal import Decimal
 import hashlib
 
 
+###########################################################################
+# match的字段
+# match_group: 具体赛事名称，如22/23赛季英超第3轮
+# match_type: 赛事类型，如22/23赛季英超
+# match_category: 赛事名称，如英超
+# match_round: 赛事轮次，如第3轮
+# match_time: 比赛时间
+# home_team: 主队
+# home_team_rank: 主队排名
+# home_score: 主队积分
+# visit_team: 客队
+# visit_team_rank: 客队排名
+# visit_score: 客队积分
+# origin_pan_most: 初始盘口
+# instant_pan_most: 即时盘口
+###########################################################################
+
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
 db = pymysql.connect(host="47.99.134.39", port=3306, user="user", password="1111", database="lottery", charset='utf8mb4')
 cursor = db.cursor()
@@ -372,26 +389,14 @@ def parse_asia(match, url):
         match["instant_pan_most"] = instant_pan_tuple[0][0]
     if "instant_pan_most" in match and "origin_pan_most" in match and abs(match["instant_pan_most"] - match["origin_pan_most"]) >= 0.75:
         print(f"\033[1;34;43m注意：盘口变化{int(abs(match['instant_pan_most'] - match['origin_pan_most'])/Decimal('0.25'))}个，初盘{match['origin_pan_most']}, 即时盘{match['instant_pan_most']}\033[0m")
-        if "match_category" in match:
-            query_str = f"""SELECT match_pan, COUNT(*) FROM football_500 WHERE match_group regexp '{match['match_category']}' """
-            if match['instant_pan_most'] > match['origin_pan_most']:
-                distant = match['instant_pan_most'] - match['origin_pan_most']
-                query_str += f""" and instant_pan_most > origin_pan_most + {distant} """
-            else:
-                distant = match['origin_pan_most'] - match['instant_pan_most']
-                query_str += f""" and instant_pan_most < origin_pan_most - {distant} """
-            if match['instant_pan_most'] > 0 > match['origin_pan_most']:
-                query_str += f""" and instant_pan_most > 0 and origin_pan_most < 0 """
-            elif match['instant_pan_most'] < 0 < match['origin_pan_most']:
-                query_str += f""" and instant_pan_most < 0 and origin_pan_most > 0 """
-            query_str += " GROUP BY match_pan"
-            cursor.execute(query_str)
-            result = cursor.fetchall()
-            if len(result) > 0:
-                print(f"\033[1;34;43m对比本联赛，该盘口下胜率为：{result}\033[0m")
+        query_str = f"""SELECT match_pan, COUNT(*) FROM football_500 WHERE origin_pan_most = {match['origin_pan_most']} and instant_pan_most = {match['instant_pan_most']} GROUP BY match_pan;"""
+        cursor.execute(query_str)
+        result = cursor.fetchall()
+        if len(result) > 0:
+            print(f"\033[1;34;43m查询历史数据，该盘口下胜率为：{result}\033[0m")
     if {"home_team_rank", "visit_team_rank", "home_score", "visit_score", "team_count", "match_round", "instant_pan_most"}.issubset(match.keys()):
         if match["match_round"] >= match["team_count"] / 2 + 1:
-            if abs(match["home_team_rank"] - match["visit_team_rank"]) <= 3 and abs(match["instant_pan_most"]) >= 1.25:
+            if abs(match["home_team_rank"] - match["visit_team_rank"]) <= (3 if match["team_count"] > 10 else 2) and abs(match["instant_pan_most"]) >= 1.25:
                 print(f"\033[1;30;45m注意：主队排名{match['home_team_rank']}，客队排名{match['visit_team_rank']}，让球{match['instant_pan_most']}偏深，预计{'主队' if match['instant_pan_most'] < 0 else '客队'}会有一场大胜，至少赢{math.ceil(abs(match['instant_pan_most']))}球。\033[0m")
             if match["home_team_rank"] <= match["visit_team_rank"] - (match["team_count"] / 2) and match["home_score"] >= match["visit_score"] + 15:
                 if match["instant_pan_most"] >= -0.25:
@@ -909,5 +914,5 @@ def analyse_detail(detail_url):
 
 
 if __name__ == '__main__':
-    analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1039406.shtml")
+    # analyse_match()
+    analyse_detail("https://odds.500.com/fenxi/shuju-1090804.shtml")
