@@ -540,39 +540,59 @@ def parse_asia(match, url):
                 if all(match["instant_pan_most"] > x for x in visit_concede) and all(abs(match["instant_pan_most"]) < x for x in home_concede) and len(home_concede) + len(visit_concede) >= 3:
                     print("\033[1;30;45m客队让球高于历史让球数，预计客队会打出盘口。\033[0m")
         # 对比状态，判断是否有反弹情况
-        home_status = []
-        visit_status = []
-        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan from football_500 where (home_team_full = '{match['home_team']}' or visit_team_full = '{match['home_team']}') and match_time < '{match['match_time']}' order by match_time desc limit 5;"
+        home_pan_status = []
+        home_res_status = []
+        visit_pan_status = []
+        visit_res_status = []
+        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan, match_result from football_500 where (home_team_full = '{match['home_team']}' or visit_team_full = '{match['home_team']}') and match_time < '{match['match_time']}' order by match_time desc limit 5;"
         cursor.execute(query_sql)
         result = cursor.fetchall()
         if len(result) >= 5:
             for r in result:
                 if r[1] == match['home_team']:
-                    home_status.append(r[5])
+                    home_pan_status.append(r[5])
+                    home_res_status.append(r[6])
                 elif r[2] == match['home_team']:
                     if r[5] == "赢":
-                        home_status.append("输")
+                        home_pan_status.append("输")
                     elif r[5] == "输":
-                        home_status.append("赢")
+                        home_pan_status.append("赢")
                     else:
-                        home_status.append("走")
-        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan from football_500 where (home_team_full = '{match['visit_team']}' or visit_team_full = '{match['visit_team']}') and match_time < '{match['match_time']}' order by match_time desc limit 5;"
+                        home_pan_status.append("走")
+                    if r[6] == "胜":
+                        home_res_status.append("负")
+                    elif r[6] == "负":
+                        home_pan_status.append("胜")
+                    else:
+                        home_pan_status.append("平")
+        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan, match_result from football_500 where (home_team_full = '{match['visit_team']}' or visit_team_full = '{match['visit_team']}') and match_time < '{match['match_time']}' order by match_time desc limit 5;"
         cursor.execute(query_sql)
         result = cursor.fetchall()
         if len(result) >= 5:
             for r in result:
                 if r[1] == match['visit_team']:
-                    visit_status.append(r[5])
+                    visit_pan_status.append(r[5])
+                    visit_res_status.append(r[6])
                 elif r[2] == match['visit_team']:
                     if r[5] == "赢":
-                        visit_status.append("输")
+                        visit_pan_status.append("输")
                     elif r[5] == "输":
-                        visit_status.append("赢")
+                        visit_pan_status.append("赢")
                     else:
-                        visit_status.append("走")
-        if home_status.count("输") >= 3 and home_status[:3].count("输") >= 2 and visit_status.count("赢") >= 3 and match["instant_pan_most"] <= -0.75:
+                        visit_pan_status.append("走")
+                    if r[6] == "胜":
+                        visit_res_status.append("负")
+                    elif r[6] == "负":
+                        visit_res_status.append("胜")
+                    else:
+                        visit_res_status.append("平")
+        if home_pan_status.count("输") >= 3 and home_pan_status[:3].count("输") >= 2 and visit_pan_status.count("赢") >= 3 and match["instant_pan_most"] <= -0.75:
             print(f"\033[1;30;45m主队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计主队反弹概率极大。\033[0m")
-        elif visit_status.count("输") >= 3 and visit_status[:3].count("输") >= 2 and home_status.count("赢") >= 3 and match["instant_pan_most"] >= 0.75:
+        elif visit_pan_status.count("输") >= 3 and visit_pan_status[:3].count("输") >= 2 and home_pan_status.count("赢") >= 3 and match["instant_pan_most"] >= 0.75:
+            print(f"\033[1;30;45m客队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计客队反弹概率极大。\033[0m")
+        if home_res_status.count("胜") <= 0 and visit_res_status.count("胜") >= 2 and match["instant_pan_most"] <= -0.5:
+            print(f"\033[1;30;45m主队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计主队反弹概率极大。\033[0m")
+        elif visit_res_status.count("胜") <= 0 and home_res_status.count("胜") >= 2 and match["instant_pan_most"] >= 0.5:
             print(f"\033[1;30;45m客队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计客队反弹概率极大。\033[0m")
     all_win_count = 0
     all_lose_count = 0
