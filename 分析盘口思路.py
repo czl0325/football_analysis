@@ -90,10 +90,9 @@ def parse_fundamentals(match, url):
     match_group = html2.xpath("//div[@class='odds_header']//table//tr/td[3]//a[@class='hd_name']/text()")
     if len(match_group) > 0:
         match["match_group"] = match_group[0].strip()
-        match_type = re.findall(r"(.*?)(第|分组|小组|资格|半|决|十六|八|季军|外围|排名|附加|升|降|春|秋)",
-                                match["match_group"])
+        match_type = re.findall(r"(.*?)(第|分组|小组|资格|半|决|十六|八|季军|外围|排名|附加|升|降|春|秋|16)", match["match_group"])
         match_category = re.findall(
-            r"\d+/?\d+(.*?)(第|分组|小组|资格|半|决|十六|八|季军|外围|秋季|排名|附加|升|降|春|秋)",
+            r"\d+/?\d+(.*?)(第|分组|小组|资格|半|决|十六|八|季军|外围|秋季|排名|附加|升|降|春|秋|16)",
             match["match_group"])
         match_round = re.findall(r"第(\d+)轮", match["match_group"])
         if len(match_type):
@@ -262,8 +261,7 @@ def parse_europe(match, url):
             if "team_count" in match and match["team_count"] > 0 and match["match_round"] > match["team_count"] / 2:
                 if match["home_team_rank"] and match["visit_team_rank"]:
                     query_sql += f" and home_team_rank {'<' if match['home_team_rank'] < match['visit_team_rank'] else '>'} visit_team_rank"
-                if "home_score" in match and match["home_score"] is not None and "visit_score" in match and match[
-                    "visit_score"] is not None:
+                if "home_score" in match and match["home_score"] is not None and "visit_score" in match and match["visit_score"] is not None:
                     if match["home_score"] > match["visit_score"]:
                         distance = match["home_score"] - match["visit_score"]
                         query_sql += f" and home_score - visit_score >= {distance - 2}"
@@ -303,8 +301,7 @@ def parse_europe(match, url):
                         league_pan_result["平"] += 1
                     else:
                         league_pan_result["负"] += 1
-            print(
-                f"欧赔全网匹配结果：{odds['company']}, 胜:{pan_result['胜']}, 平:{pan_result['平']}, 负:{pan_result['负']}")
+            print(f"欧赔全网匹配结果：{odds['company']}, 胜:{pan_result['胜']}, 平:{pan_result['平']}, 负:{pan_result['负']}")
             all_win_count += pan_result["胜"]
             all_even_count += pan_result["平"]
             all_lose_count += pan_result["负"]
@@ -513,6 +510,7 @@ def parse_asia(match, url):
                         win_dic = sorted(win_dic.items(), key=lambda x: x[1], reverse=True)
                         print(f"历史交战主队欧赔情况{win_dic}")
                         print(f"历史交战主队亚盘情况{pan_dic}")
+    if {"instant_pan_most"}.issubset(match.keys()):
         # 对比历史让球数
         concede = "visit"
         if match["instant_pan_most"] <= 0:
@@ -536,15 +534,46 @@ def parse_asia(match, url):
                         else:
                             visit_concede.append(r[4])
             if concede == "home":
-                if all(match["instant_pan_most"] < x for x in home_concede) and all(
-                        abs(match["instant_pan_most"]) > x for x in visit_concede) and len(
-                        home_concede) + len(visit_concede) >= 3:
+                if all(match["instant_pan_most"] < x for x in home_concede) and all(abs(match["instant_pan_most"]) > x for x in visit_concede) and len(home_concede) + len(visit_concede) >= 3:
                     print("\033[1;30;45m主队让球高于历史让球数，预计主队会打出盘口。\033[0m")
             else:
-                if all(match["instant_pan_most"] > x for x in visit_concede) and all(
-                        abs(match["instant_pan_most"]) < x for x in home_concede) and len(
-                        home_concede) + len(visit_concede) >= 3:
+                if all(match["instant_pan_most"] > x for x in visit_concede) and all(abs(match["instant_pan_most"]) < x for x in home_concede) and len(home_concede) + len(visit_concede) >= 3:
                     print("\033[1;30;45m客队让球高于历史让球数，预计客队会打出盘口。\033[0m")
+        # 对比状态，判断是否有反弹情况
+        home_status = []
+        visit_status = []
+        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan from football_500 where (home_team_full = '{match['home_team']}' or visit_team_full = '{match['home_team']}') and match_time < '{match['match_time']}' order by match_time desc limit 5;"
+        cursor.execute(query_sql)
+        result = cursor.fetchall()
+        if len(result) >= 5:
+            for r in result:
+                if r[1] == match['home_team']:
+                    home_status.append(r[5])
+                elif r[2] == match['home_team']:
+                    if r[5] == "赢":
+                        home_status.append("输")
+                    elif r[5] == "输":
+                        home_status.append("赢")
+                    else:
+                        home_status.append("走")
+        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan from football_500 where (home_team_full = '{match['visit_team']}' or visit_team_full = '{match['visit_team']}') and match_time < '{match['match_time']}' order by match_time desc limit 5;"
+        cursor.execute(query_sql)
+        result = cursor.fetchall()
+        if len(result) >= 5:
+            for r in result:
+                if r[1] == match['visit_team']:
+                    visit_status.append(r[5])
+                elif r[2] == match['visit_team']:
+                    if r[5] == "赢":
+                        visit_status.append("输")
+                    elif r[5] == "输":
+                        visit_status.append("赢")
+                    else:
+                        visit_status.append("走")
+        if home_status.count("输") >= 3 and home_status[:3].count("输") >= 2 and visit_status.count("赢") >= 3 and match["instant_pan_most"] <= -0.75:
+            print(f"\033[1;30;45m主队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计主队反弹概率极大。\033[0m")
+        elif visit_status.count("输") >= 3 and visit_status[:3].count("输") >= 2 and home_status.count("赢") >= 3 and match["instant_pan_most"] >= 0.75:
+            print(f"\033[1;30;45m客队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计客队反弹概率极大。\033[0m")
     all_win_count = 0
     all_lose_count = 0
     all_run_count = 0
@@ -553,6 +582,7 @@ def parse_asia(match, url):
     league_run_count = 0
     score_map = {}
     team_map = {}
+    print(f"亚盘初盘让球{match['origin_pan_most']}，即时盘让球{match['instant_pan_most']}")
     for odds in odds_items:
         if odds["company"] in asia_map and "match_filter" in match and match["match_filter"] is not None:
             company_value = asia_map[odds["company"]]
@@ -977,7 +1007,8 @@ def analyse_detail(detail_url):
 
 if __name__ == '__main__':
     analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1055325.shtml")
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1070059.shtml")
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
 # 墨尔本骑士 https://odds.500.com/fenxi/shuju-1075552.shtml
+# 切尔西多特 https://odds.500.com/fenxi/shuju-1070059.shtml
