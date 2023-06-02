@@ -582,7 +582,8 @@ def parse_asia(match, url):
     league_run_count = 0
     score_map = {}
     team_map = {}
-    print(f"亚盘初盘让球{match['origin_pan_most']}，即时盘让球{match['instant_pan_most']}")
+    if {"origin_pan_most", "instant_pan_most"}.issubset(match):
+        print(f"亚盘初盘让球{match['origin_pan_most']}，即时盘让球{match['instant_pan_most']}")
     for odds in odds_items:
         if odds["company"] in asia_map and "match_filter" in match and match["match_filter"] is not None:
             company_value = asia_map[odds["company"]]
