@@ -945,7 +945,7 @@ def analyse_match():
         match_time = time.strptime(match_time, "%Y-%m-%d %H:%M")
         current_time = time.strftime('%Y-%m-%d %H:%M', time.localtime(time.time()))
         time_diff = time.mktime(match_time) - time.mktime(time.strptime(current_time, "%Y-%m-%d %H:%M"))
-        if time_diff < -3600 * 0:
+        if time_diff < -3600 * 1:
             continue
         if time_diff > 3600 * 2 and is_start == "未":
             break
