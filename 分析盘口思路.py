@@ -675,6 +675,8 @@ def parse_asia(match, url):
             result_str += "输盘概率最大,为{:.2f}%".format(
                 all_lose_count / (all_win_count + all_lose_count + all_run_count) * 100)
             print(f"\033[1;34m{result_str}\033[0m")
+    else:
+        print("同赔未匹配到比赛")
     if league_win_count + league_run_count + league_lose_count > 0:
         result_str = f"亚盘本联赛盘口:赢={league_win_count},输={league_lose_count},走={league_run_count},"
         if league_win_count > league_lose_count and league_win_count > league_run_count:
@@ -695,9 +697,9 @@ def parse_asia(match, url):
             key_lst = key.split("_")
             new_key = key_lst[0]
             if new_key in new_score_map:
-                new_score_map[new_key] += score_map[key]
+                new_score_map[new_key] += 1
             else:
-                new_score_map[new_key] = score_map[key]
+                new_score_map[new_key] = 1
         new_score_map = dict(sorted(new_score_map.items(), key=lambda item: item[1], reverse=True))
         score_str = "比分概率前三分别是："
         index = 0
@@ -788,7 +790,7 @@ def parse_size(match, url):
                 size_str = "泊松分布计算进球数，按概率从大到小排列：\n"
                 size_dict = dict(sorted(size_dict.items(), key=lambda x: x[1], reverse=True))
                 for key, value in size_dict.items():
-                    size_str += f"{key}球：概率{round(value*100, 2)}%，"
+                    size_str += f"({key}球：概率{round(value*100, 2)}%)  "
                 print(size_str)
             all_matches = {}
             for size_tr in size_trs:
@@ -852,7 +854,7 @@ def parse_size(match, url):
             size_dict = dict(sorted(size_dict.items(), key=lambda item: item[1], reverse=True))
             size_str = "大小同赔计算，按概率从大到小排列：\n"
             for key, value in size_dict.items():
-                size_str += f"{key}球：{value}场，"
+                size_str += f"({key}球：{value}场)  "
             print(size_str)
             home_closed = []
             visit_closed = []
