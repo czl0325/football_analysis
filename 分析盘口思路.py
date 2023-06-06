@@ -233,8 +233,7 @@ def parse_europe(match, url):
     for odds in europe_odds:
         if odds["company"] in asia_map and "match_filter" in match and match["match_filter"] is not None:
             company_value = asia_map[odds["company"]]
-            origin_win_up = odds["origin_win_odds"] if odds["instant_win_odds"] > odds["origin_win_odds"] else (
-                    odds["origin_win_odds"] + error_odds)
+            origin_win_up = odds["origin_win_odds"] if odds["instant_win_odds"] > odds["origin_win_odds"] else (odds["origin_win_odds"] + error_odds)
             origin_win_down = (odds["origin_win_odds"] - error_odds) if odds["instant_win_odds"] > odds[
                 "origin_win_odds"] else odds["origin_win_odds"]
             origin_even_up = odds["origin_even_odds"] if odds["instant_even_odds"] > odds["origin_even_odds"] else (
@@ -406,8 +405,7 @@ def parse_asia(match, url):
     if len(instant_pan_tuple):
         match["instant_pan_most"] = instant_pan_tuple[0][0]
     if "instant_pan_most" in match and "origin_pan_most" in match and abs(match["instant_pan_most"] - match["origin_pan_most"]) >= 0.75:
-        print(
-            f"\033[1;34;43m注意：盘口变化{int(abs(match['instant_pan_most'] - match['origin_pan_most']) / Decimal('0.25'))}个，初盘{match['origin_pan_most']}, 即时盘{match['instant_pan_most']}\033[0m")
+        print(f"\033[1;34;43m注意：盘口变化{int(abs(match['instant_pan_most'] - match['origin_pan_most']) / Decimal('0.25'))}个，初盘{match['origin_pan_most']}, 即时盘{match['instant_pan_most']}\033[0m")
         query_str = f"""SELECT match_pan, COUNT(*) FROM football_500 WHERE origin_pan_most = {match['origin_pan_most']} and instant_pan_most = {match['instant_pan_most']} GROUP BY match_pan;"""
         cursor.execute(query_str)
         result = cursor.fetchall()
@@ -542,10 +540,11 @@ def parse_asia(match, url):
         home_res_status = []
         visit_pan_status = []
         visit_res_status = []
-        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan, match_result from football_500 where (home_team_full = '{match['home_team']}' or visit_team_full = '{match['home_team']}') and match_time < '{match['match_time']}' order by match_time desc limit 5;"
+        history_count = 6
+        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan, match_result from football_500 where (home_team_full = '{match['home_team']}' or visit_team_full = '{match['home_team']}') and match_time < '{match['match_time']}' order by match_time desc limit {history_count};"
         cursor.execute(query_sql)
         result = cursor.fetchall()
-        if len(result) >= 5:
+        if len(result) >= history_count:
             for r in result:
                 if r[1] == match['home_team']:
                     home_pan_status.append(r[5])
@@ -563,10 +562,10 @@ def parse_asia(match, url):
                         home_res_status.append("胜")
                     else:
                         home_res_status.append("平")
-        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan, match_result from football_500 where (home_team_full = '{match['visit_team']}' or visit_team_full = '{match['visit_team']}') and match_time < '{match['match_time']}' order by match_time desc limit 5;"
+        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan, match_result from football_500 where (home_team_full = '{match['visit_team']}' or visit_team_full = '{match['visit_team']}') and match_time < '{match['match_time']}' order by match_time desc limit {history_count};"
         cursor.execute(query_sql)
         result = cursor.fetchall()
-        if len(result) >= 5:
+        if len(result) >= history_count:
             for r in result:
                 if r[1] == match['visit_team']:
                     visit_pan_status.append(r[5])
@@ -584,13 +583,13 @@ def parse_asia(match, url):
                         visit_res_status.append("胜")
                     else:
                         visit_res_status.append("平")
-        if home_pan_status.count("输") >= 3 and home_pan_status[:3].count("输") >= 2 and visit_pan_status.count("赢") >= 3 and match["instant_pan_most"] <= -0.75:
+        if home_pan_status.count("输") >= history_count - 2 and home_pan_status[:3].count("赢") <= 0 and visit_pan_status.count("赢") >= history_count - 2 and match["instant_pan_most"] <= -0.75:
             print(f"\033[1;30;45m主队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计主队反弹概率极大。\033[0m")
-        elif visit_pan_status.count("输") >= 3 and visit_pan_status[:3].count("输") >= 2 and home_pan_status.count("赢") >= 3 and match["instant_pan_most"] >= 0.75:
+        elif visit_pan_status.count("输") >= history_count - 2 and visit_pan_status[:3].count("赢") <= 0 and home_pan_status.count("赢") >= history_count - 2 and match["instant_pan_most"] >= 0.75:
             print(f"\033[1;30;45m客队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计客队反弹概率极大。\033[0m")
-        if home_res_status.count("胜") <= 0 and visit_res_status.count("胜") >= 2 and match["instant_pan_most"] <= -0.5:
+        if home_res_status.count("胜") <= 0 and visit_res_status.count("胜") >= history_count - 3 and match["instant_pan_most"] <= -0.5:
             print(f"\033[1;30;45m主队近5场未尝一胜，却让出{abs(match['instant_pan_most'])}球。预计主队反弹概率极大。\033[0m")
-        elif visit_res_status.count("胜") <= 0 and home_res_status.count("胜") >= 2 and match["instant_pan_most"] >= 0.5:
+        elif visit_res_status.count("胜") <= 0 and home_res_status.count("胜") >= history_count - 3 and match["instant_pan_most"] >= 0.5:
             print(f"\033[1;30;45m客队近5场未尝一胜，却让出{abs(match['instant_pan_most'])}球。预计客队反弹概率极大。\033[0m")
     all_win_count = 0
     all_lose_count = 0
@@ -1025,8 +1024,8 @@ def analyse_detail(detail_url):
 
 
 if __name__ == '__main__':
-    analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1084103.shtml")
+    # analyse_match()
+    analyse_detail("https://odds.500.com/fenxi/shuju-1070059.shtml")
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
 # 墨尔本骑士 https://odds.500.com/fenxi/shuju-1075552.shtml
