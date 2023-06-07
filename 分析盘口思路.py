@@ -233,8 +233,7 @@ def parse_europe(match, url):
     for odds in europe_odds:
         if odds["company"] in asia_map and "match_filter" in match and match["match_filter"] is not None:
             company_value = asia_map[odds["company"]]
-            origin_win_up = odds["origin_win_odds"] if odds["instant_win_odds"] > odds["origin_win_odds"] else (
-                    odds["origin_win_odds"] + error_odds)
+            origin_win_up = odds["origin_win_odds"] if odds["instant_win_odds"] > odds["origin_win_odds"] else (odds["origin_win_odds"] + error_odds)
             origin_win_down = (odds["origin_win_odds"] - error_odds) if odds["instant_win_odds"] > odds[
                 "origin_win_odds"] else odds["origin_win_odds"]
             origin_even_up = odds["origin_even_odds"] if odds["instant_even_odds"] > odds["origin_even_odds"] else (
@@ -406,8 +405,7 @@ def parse_asia(match, url):
     if len(instant_pan_tuple):
         match["instant_pan_most"] = instant_pan_tuple[0][0]
     if "instant_pan_most" in match and "origin_pan_most" in match and abs(match["instant_pan_most"] - match["origin_pan_most"]) >= 0.75:
-        print(
-            f"\033[1;34;43m注意：盘口变化{int(abs(match['instant_pan_most'] - match['origin_pan_most']) / Decimal('0.25'))}个，初盘{match['origin_pan_most']}, 即时盘{match['instant_pan_most']}\033[0m")
+        print(f"\033[1;34;43m注意：盘口变化{int(abs(match['instant_pan_most'] - match['origin_pan_most']) / Decimal('0.25'))}个，初盘{match['origin_pan_most']}, 即时盘{match['instant_pan_most']}\033[0m")
         query_str = f"""SELECT match_pan, COUNT(*) FROM football_500 WHERE origin_pan_most = {match['origin_pan_most']} and instant_pan_most = {match['instant_pan_most']} GROUP BY match_pan;"""
         cursor.execute(query_str)
         result = cursor.fetchall()
@@ -540,10 +538,11 @@ def parse_asia(match, url):
         home_res_status = []
         visit_pan_status = []
         visit_res_status = []
-        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan, match_result from football_500 where (home_team_full = '{match['home_team']}' or visit_team_full = '{match['home_team']}') and match_time < '{match['match_time']}' order by match_time desc limit 5;"
+        history_count = 6
+        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan, match_result from football_500 where (home_team_full = '{match['home_team']}' or visit_team_full = '{match['home_team']}') and match_time < '{match['match_time']}' order by match_time desc limit {history_count};"
         cursor.execute(query_sql)
         result = cursor.fetchall()
-        if len(result) >= 5:
+        if len(result) >= history_count:
             for r in result:
                 if r[1] == match['home_team']:
                     home_pan_status.append(r[5])
@@ -561,10 +560,10 @@ def parse_asia(match, url):
                         home_res_status.append("胜")
                     else:
                         home_res_status.append("平")
-        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan, match_result from football_500 where (home_team_full = '{match['visit_team']}' or visit_team_full = '{match['visit_team']}') and match_time < '{match['match_time']}' order by match_time desc limit 5;"
+        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan, match_result from football_500 where (home_team_full = '{match['visit_team']}' or visit_team_full = '{match['visit_team']}') and match_time < '{match['match_time']}' order by match_time desc limit {history_count};"
         cursor.execute(query_sql)
         result = cursor.fetchall()
-        if len(result) >= 5:
+        if len(result) >= history_count:
             for r in result:
                 if r[1] == match['visit_team']:
                     visit_pan_status.append(r[5])
@@ -582,13 +581,13 @@ def parse_asia(match, url):
                         visit_res_status.append("胜")
                     else:
                         visit_res_status.append("平")
-        if home_pan_status.count("输") >= 3 and home_pan_status[:3].count("输") >= 2 and visit_pan_status.count("赢") >= 3 and match["instant_pan_most"] <= -0.75:
+        if home_pan_status.count("输") >= history_count - 2 and home_pan_status[:3].count("赢") <= 0 and visit_pan_status.count("赢") >= history_count - 2 and match["instant_pan_most"] <= -0.75:
             print(f"\033[1;30;45m主队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计主队反弹概率极大。\033[0m")
-        elif visit_pan_status.count("输") >= 3 and visit_pan_status[:3].count("输") >= 2 and home_pan_status.count("赢") >= 3 and match["instant_pan_most"] >= 0.75:
+        elif visit_pan_status.count("输") >= history_count - 2 and visit_pan_status[:3].count("赢") <= 0 and home_pan_status.count("赢") >= history_count - 2 and match["instant_pan_most"] >= 0.75:
             print(f"\033[1;30;45m客队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计客队反弹概率极大。\033[0m")
-        if home_res_status.count("胜") <= 0 and visit_res_status.count("胜") >= 2 and match["instant_pan_most"] <= -0.5:
+        if home_res_status.count("胜") <= 0 and visit_res_status.count("胜") >= history_count - 3 and match["instant_pan_most"] <= -0.5:
             print(f"\033[1;30;45m主队近5场未尝一胜，却让出{abs(match['instant_pan_most'])}球。预计主队反弹概率极大。\033[0m")
-        elif visit_res_status.count("胜") <= 0 and home_res_status.count("胜") >= 2 and match["instant_pan_most"] >= 0.5:
+        elif visit_res_status.count("胜") <= 0 and home_res_status.count("胜") >= history_count - 3 and match["instant_pan_most"] >= 0.5:
             print(f"\033[1;30;45m客队近5场未尝一胜，却让出{abs(match['instant_pan_most'])}球。预计客队反弹概率极大。\033[0m")
     all_win_count = 0
     all_lose_count = 0
@@ -676,6 +675,9 @@ def parse_asia(match, url):
             print(f"\033[1;34m{result_str}\033[0m")
         else:
             print(result_str)
+    else:
+        if match["match_filter"]:
+            print("未匹配到相同赔率相同水位的比赛")
     if league_win_count + league_run_count + league_lose_count > 0:
         result_str = f"亚盘本联赛盘口:赢={league_win_count},输={league_lose_count},走={league_run_count},"
         if league_win_count > league_lose_count and league_win_count > league_run_count:
@@ -698,9 +700,9 @@ def parse_asia(match, url):
             key_lst = key.split("_")
             new_key = key_lst[0]
             if new_key in new_score_map:
-                new_score_map[new_key] += score_map[key]
+                new_score_map[new_key] += 1
             else:
-                new_score_map[new_key] = score_map[key]
+                new_score_map[new_key] = 1
         new_score_map = dict(sorted(new_score_map.items(), key=lambda item: item[1], reverse=True))
         score_str = "比分概率前三分别是："
         index = 0
@@ -770,7 +772,6 @@ def parse_size(match, url):
                     team_map[res[1]]["visit_goal"] += int(score_lst[1])
                     team_map[res[1]]["visit_miss"] += int(score_lst[0])
                     team_map[res[1]]["visit_count"] += 1
-            size_lst = None
             if home_count > 0 and visit_count > 0:
                 home_exception = (home_goals / home_count) / (league_home_goals / len(result)) * (visit_miss / visit_count)
                 visit_exception = (visit_goals / visit_count) / (league_visit_goals / len(result)) * (home_miss / home_count)
@@ -778,38 +779,23 @@ def parse_size(match, url):
                 visit_avg = round(visit_goals / visit_count, 1)
                 home_goal_exception = [round(stats.poisson.pmf(i, home_exception), 4) for i in range(7)]
                 visit_goal_exception = [round(stats.poisson.pmf(i, visit_exception), 4) for i in range(7)]
-                home_goal_most_likely = -1
-                visit_goal_most_likely = -1
-                goal = 0
-                for i in range(len(home_goal_exception)):
-                    if home_goal_exception[i] > goal:
-                        goal = home_goal_exception[i]
-                        home_goal_most_likely = i
-                goal = 0
-                for i in range(len(visit_goal_exception)):
-                    if visit_goal_exception[i] > goal:
-                        goal = visit_goal_exception[i]
-                        visit_goal_most_likely = i
-                size_lst = [home_goal_exception[0] * visit_goal_exception[0],
-                            home_goal_exception[1] * visit_goal_exception[0] + home_goal_exception[0] *
-                            visit_goal_exception[1],
-                            home_goal_exception[2] * visit_goal_exception[0] + home_goal_exception[0] *
-                            visit_goal_exception[2] + home_goal_exception[1] * visit_goal_exception[1],
-                            home_goal_exception[3] * visit_goal_exception[0] + home_goal_exception[0] *
-                            visit_goal_exception[3] + home_goal_exception[2] * visit_goal_exception[1] +
-                            home_goal_exception[1] * visit_goal_exception[2],
-                            home_goal_exception[0] * visit_goal_exception[4] + home_goal_exception[4] *
-                            visit_goal_exception[0] + home_goal_exception[3] * visit_goal_exception[1] +
-                            home_goal_exception[1] * visit_goal_exception[3] + home_goal_exception[2] *
-                            visit_goal_exception[2],
-                            home_goal_exception[0] * visit_goal_exception[5] + home_goal_exception[5] *
-                            visit_goal_exception[0] + home_goal_exception[4] * visit_goal_exception[1] +
-                            home_goal_exception[1] * visit_goal_exception[4] + home_goal_exception[3] *
-                            visit_goal_exception[2] + home_goal_exception[2] * visit_goal_exception[3]]
-                print(
-                    f"""{match["home_team"]}主场平均进球{home_avg}，泊松分布计算{home_goal_exception}，{match["visit_team"]}客场平均进球{visit_avg}，泊松分布计算{visit_goal_exception}""")
-            compare_size = []
-            all_compare = True
+                print(f"""{match["home_team"]}主场平均进球{home_avg}，泊松分布计算{home_goal_exception}，{match["visit_team"]}客场平均进球{visit_avg}，泊松分布计算{visit_goal_exception}""")
+                size_dict = {
+                    0: home_goal_exception[0] * visit_goal_exception[0],
+                    1: home_goal_exception[1] * visit_goal_exception[0] + home_goal_exception[0] * visit_goal_exception[1],
+                    2: home_goal_exception[2] * visit_goal_exception[0] + home_goal_exception[0] * visit_goal_exception[2] + home_goal_exception[1] * visit_goal_exception[1],
+                    3: home_goal_exception[3] * visit_goal_exception[0] + home_goal_exception[0] * visit_goal_exception[3] + home_goal_exception[2] * visit_goal_exception[1] + home_goal_exception[1] * visit_goal_exception[2],
+                    4: home_goal_exception[0] * visit_goal_exception[4] + home_goal_exception[4] * visit_goal_exception[0] + home_goal_exception[3] * visit_goal_exception[1] + home_goal_exception[1] * visit_goal_exception[3] + home_goal_exception[2] * visit_goal_exception[2],
+                    5: home_goal_exception[0] * visit_goal_exception[5] + home_goal_exception[5] * visit_goal_exception[0] + home_goal_exception[4] * visit_goal_exception[1] + home_goal_exception[1] * visit_goal_exception[4] + home_goal_exception[3] * visit_goal_exception[2] + home_goal_exception[2] * visit_goal_exception[3]
+                }
+                small_probability = size_dict[0]+size_dict[1]+size_dict[2]
+                print(f"泊松分布2.5球小概率={round(small_probability * 100, 2)}%，2.5球大概率={round((1 - small_probability) * 100, 2)}%")
+                size_str = "泊松分布计算进球数，按概率从大到小排列：\n"
+                size_dict = dict(sorted(size_dict.items(), key=lambda x: x[1], reverse=True))
+                for key, value in size_dict.items():
+                    size_str += f"({key}球：概率{round(value*100, 2)}%)  "
+                print(size_str)
+            all_matches = {}
             for size_tr in size_trs:
                 company = size_tr.xpath("./td[2]/p/a/@title")
                 if len(company) <= 0:
@@ -840,63 +826,39 @@ def parse_size(match, url):
                                 query_sql += f" and instant_size_odds_home_{company_value} between {instant_size_odds_home - error_odds} and {instant_size_odds_home}  and instant_size_odds_visit_{company_value} between {instant_size_odds_visit} and {instant_size_odds_visit + error_odds}"
                         else:
                             query_sql += f" and instant_size_odds_home_{company_value} between {instant_size_odds_home - error_odds} and {instant_size_odds_home + error_odds} and instant_size_odds_visit_{company_value} between {instant_size_odds_visit - error_odds} and {instant_size_odds_visit + error_odds}"
-                        if match["match_filter"] is not None:
-                            query_sql += f" and match_group regexp '{match['match_filter']}'"
+                        if "team_count" in match and match["team_count"] > 0 and match["match_round"] > match["team_count"] / 4:
+                            if match["home_team_rank"] and match["visit_team_rank"]:
+                                query_sql += f" and home_team_rank {'<' if match['home_team_rank'] < match['visit_team_rank'] else '>'} visit_team_rank"
+                            if "home_score" in match and match["home_score"] is not None and "visit_score" in match and match["visit_score"] is not None:
+                                if match["home_score"] > match["visit_score"]:
+                                    distance = match["home_score"] - match["visit_score"]
+                                    query_sql += f" and home_score - visit_score >= {distance - 2}"
+                                else:
+                                    distance = match["visit_score"] - match["home_score"]
+                                    query_sql += f" and visit_score - home_score >= {distance - 2}"
                         cursor.execute(query_sql)
                         result = cursor.fetchall()
                         if len(result) > 0:
-                            size_map = {"大": 0, "小": 0, "走": 0}
-                            small_probability = 0
-                            drop_probability = 0
-                            big_probability = 0
-                            current_size = None
                             for res in result:
                                 score_lst = res[3].split(":")
-                                current_size = res[4]
-                                if int(score_lst[0]) + int(score_lst[1]) > current_size:
-                                    size_map["大"] += 1
-                                elif int(score_lst[0]) + int(score_lst[1]) < current_size:
-                                    size_map["小"] += 1
-                                else:
-                                    size_map["走"] += 1
-                            if size_lst and current_size:
-                                for i in range(int(current_size) + 1):
-                                    small_probability += size_lst[i]
-                                if isinstance(current_size, int):
-                                    drop_probability = size_lst[current_size]
-                                big_probability = 1 - small_probability - drop_probability
-                            if size_map["大"] > size_map["小"] and size_map["大"] > size_map["走"]:
-                                if big_probability > small_probability and big_probability > drop_probability:
-                                    print(
-                                        f"{company}盘口，开盘{current_size}球，大球概率最大，泊松={round(big_probability * 100, 2)}%，同赔=大：{size_map['大']}，小：{size_map['小']}，走：{size_map['走']}")
-                                    compare_size.append("大")
-                                else:
-                                    print(
-                                        f"{company}盘口，开盘{current_size}球，泊松小球概率={round(small_probability * 100, 2)}%，同赔=大：{size_map['大']}，小：{size_map['小']}，走：{size_map['走']}，泊松和同赔不匹配")
-                                    all_compare = False
-                            elif size_map["小"] > size_map["大"] and size_map["小"] > size_map["走"]:
-                                if small_probability > big_probability and small_probability > drop_probability:
-                                    print(
-                                        f"{company}盘口，开盘{current_size}球，小球概率最大，泊松={round(small_probability * 100, 2)}%，同赔=大：{size_map['大']}，小：{size_map['小']}，走：{size_map['走']}")
-                                    compare_size.append("小")
-                                else:
-                                    print(
-                                        f"{company}盘口，开盘{current_size}球，泊松大球概率={round(big_probability * 100, 2)}%，同赔=大：{size_map['大']}，小：{size_map['小']}，走：{size_map['走']}，泊松和同赔不匹配")
-                                    all_compare = False
-                            elif size_map["走"] > size_map["大"] and size_map["走"] > size_map["小"]:
-                                if drop_probability > big_probability and drop_probability > small_probability:
-                                    print(
-                                        f"{company}盘口，开盘{current_size}球，走盘概率最大，泊松={round(drop_probability * 100, 2)}%，同赔=大：{size_map['大']}，小：{size_map['小']}，走：{size_map['走']}")
-                                    compare_size.append("走")
-                                else:
-                                    print(
-                                        f"{company}盘口，开盘{current_size}球，泊松大球概率={round(big_probability * 100, 2)}%，同赔=大：{size_map['大']}，小：{size_map['小']}，走：{size_map['走']}，泊松和同赔不匹配")
-                                    all_compare = False
+                                key_str = f"{res[0]}_{res[1]}_{res[2]}"
+                                if key_str not in all_matches:
+                                    all_matches[key_str] = int(score_lst[0]) + int(score_lst[1])
                     except Exception as e:
                         print(f"遇到错误={str(e)}, 网址{match['url']}")
                         continue
-            if all_compare and len(compare_size) > 0:
-                print(f"\033[1;32m全部盘口一致，{set(compare_size)}\033[0m")
+            all_matches = dict(sorted(all_matches.items(), key=lambda item: item[1]))
+            size_dict = {}
+            for key, value in all_matches.items():
+                if value in size_dict:
+                    size_dict[value] += 1
+                else:
+                    size_dict[value] = 1
+            size_dict = dict(sorted(size_dict.items(), key=lambda item: item[1], reverse=True))
+            size_str = "大小同赔计算，按概率从大到小排列：\n"
+            for key, value in size_dict.items():
+                size_str += f"({key}球：{value}场)  "
+            print(size_str)
             home_closed = []
             visit_closed = []
             try:
@@ -975,7 +937,7 @@ def analyse_match():
         time_diff = time.mktime(match_time) - time.mktime(time.strptime(current_time, "%Y-%m-%d %H:%M"))
         if time_diff < -3600 * 1:
             continue
-        if time_diff > 3600 * 5 and is_start == "未":
+        if time_diff > 3600 * 2 and is_start == "未":
             break
         is_friend = tr.xpath("./td[2]/a/text()")
         if len(is_friend) <= 0:
@@ -1022,13 +984,14 @@ def analyse_detail(detail_url):
         print(f"\033[1;31m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。\033[0m")
     # match_item = parse_europe(match_item, detail_url.replace("shuju", "ouzhi"))
     match_item = parse_asia(match_item, detail_url.replace("shuju", "yazhi"))
-    # match_item = parse_size(match_item, detail_url.replace("shuju", "daxiao"))
+    match_item = parse_size(match_item, detail_url.replace("shuju", "daxiao"))
     db.close()
 
 
 if __name__ == '__main__':
     analyse_match()
     # analyse_detail("https://odds.500.com/fenxi/shuju-1091156.shtml")
+
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
 # 墨尔本骑士 https://odds.500.com/fenxi/shuju-1075552.shtml
