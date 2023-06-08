@@ -76,7 +76,7 @@ asia_map = {
 }
 match_map = {
     # "group1": [],
-    "group2": ["英超", "英甲", "西甲", "意甲", "法甲", "德甲", "德丙联", "葡超", "荷甲", "英冠", "英足总杯", "欧冠", "欧罗巴", "德国杯", "意超杯", "意杯", "意乙", "意丙1A", "意丙1B", "意丙1C", "意青联", "法国杯", "西班牙杯", "非洲杯", "欧洲杯", "解放者杯", "西乙", "西丙1", "西丙2", "西丙3", "西丙4", "西协甲", "法乙", "德乙", "荷乙", "比杯", "瑞典超", "瑞典甲", "丹超", "瑞士超", "克罗甲", "塞甲联", "波甲", "波乙", "苏冠", "苏甲", "土甲", "苏超", "瑞士甲", "丹甲", "罗甲", "英乙", "比乙", "保超", "挪超", "挪甲", "德东北", "爱超", "爱甲", "黑山甲", "阿巴超", "埃及甲", "摩洛超", "阿尔及甲", "捷甲", "捷克乙", "黑山甲", "阿甲", "巴甲", "巴圣锦", "巴乙", "阿乙", "乌拉超", "智利甲", "厄瓜多尔甲", "秘鲁甲", "巴拉圭联", "墨西联", "墨西乙", "哥斯甲", "哥甲", "美职联", "澳超", "日职", "韩足杯", "日职乙", "日联杯", "K1联赛", "K2联赛", "印度超", "印度甲", "印尼超", "澳南超", "澳维超", "越南联", "伊朗超", "伊朗甲", "阿联超", "马来超", "泰超", "巴西杯", "欧会杯", "乌兹超", "冰岛联", "沙特联", "波黑超", "澳昆超", "中超", "中甲", "中协杯", "智甲", "智乙", "斯洛文甲", "南非超", "冰岛超", "卡塔联", "亚冠杯", "希腊超A", "厄甲", "奥甲", "奥乙", "巴拉联", "芬超", "南俱杯", "突尼斯甲", "挪威杯"],
+    "group2": ["英超", "英甲", "西甲", "意甲", "法甲", "德甲", "德丙联", "葡超", "荷甲", "英冠", "英足总杯", "欧冠", "欧罗巴", "德国杯", "意超杯", "意杯", "意乙", "意丙1A", "意丙1B", "意丙1C", "意青联", "法国杯", "西班牙杯", "非洲杯", "欧洲杯", "解放者杯", "西乙", "西丙1", "西丙2", "西丙3", "西丙4", "西协甲", "法乙", "德乙", "荷乙", "比杯", "瑞典超", "瑞典甲", "丹超", "瑞士超", "克罗甲", "塞甲联", "波甲", "波乙", "苏冠", "苏甲", "土甲", "苏超", "瑞士甲", "丹甲", "罗甲", "英乙", "比乙", "保超", "挪超", "挪甲", "德东北", "爱超", "爱甲", "黑山甲", "阿巴超", "埃及甲", "摩洛超", "阿尔及甲", "捷甲", "捷克乙", "黑山甲", "阿甲", "巴甲", "巴圣锦", "巴乙", "阿乙", "乌拉超", "智利甲", "厄瓜多尔甲", "秘鲁甲", "巴拉圭联", "墨西联", "墨西乙", "哥斯甲", "哥甲", "美职联", "澳超", "日职", "韩足杯", "日职乙", "日联杯", "K1联赛", "K2联赛", "印度超", "印度甲", "印尼超", "澳南超", "澳维超", "越南联", "伊朗超", "伊朗甲", "阿联超", "马来超", "泰超", "巴西杯", "欧会杯", "乌兹超", "冰岛联", "沙特联", "波黑超", "澳昆超", "中超", "中甲", "中协杯", "智甲", "智乙", "斯洛文甲", "南非超", "冰岛超", "卡塔联", "亚冠杯", "希腊超A", "厄甲", "奥甲", "奥乙", "巴拉联", "芬超", "南俱杯", "突尼斯甲", "挪威杯", "日天皇杯"],
     "group_inaccuracy": ["乌超", "葡甲", "比甲", "土超", "法丙"]
 }
 error_odds = Decimal('0.02')
@@ -583,9 +583,9 @@ def parse_asia(match, url):
                         visit_res_status.append("胜")
                     else:
                         visit_res_status.append("平")
-        if home_pan_status.count("输") >= history_count - 2 and home_pan_status[:3].count("赢") <= 0 and visit_pan_status.count("赢") >= history_count - 2 and match["instant_pan_most"] <= -0.75:
+        if home_pan_status.count("输") >= history_count - 2 and home_pan_status[:3].count("赢") <= 0 and (visit_pan_status.count("赢") >= history_count - 2 or visit_pan_status[:2].count("赢") == 2) and match["instant_pan_most"] <= -0.75:
             print(f"\033[1;30;45m主队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计主队反弹概率极大。\033[0m")
-        elif visit_pan_status.count("输") >= history_count - 2 and visit_pan_status[:3].count("赢") <= 0 and home_pan_status.count("赢") >= history_count - 2 and match["instant_pan_most"] >= 0.75:
+        elif visit_pan_status.count("输") >= history_count - 2 and visit_pan_status[:3].count("赢") <= 0 and (home_pan_status.count("赢") >= history_count - 2 or home_pan_status[:2].count("赢") == 2) and match["instant_pan_most"] >= 0.75:
             print(f"\033[1;30;45m客队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计客队反弹概率极大。\033[0m")
         if home_res_status.count("胜") <= 0 and visit_res_status.count("胜") >= history_count - 3 and match["instant_pan_most"] <= -0.5:
             print(f"\033[1;30;45m主队近5场未尝一胜，却让出{abs(match['instant_pan_most'])}球。预计主队反弹概率极大。\033[0m")
@@ -987,8 +987,9 @@ def analyse_detail(detail_url):
 
 if __name__ == '__main__':
     analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1073963.shtml")
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1084114.shtml")
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
 # 墨尔本骑士 https://odds.500.com/fenxi/shuju-1075552.shtml
 # 切尔西多特 https://odds.500.com/fenxi/shuju-1070059.shtml
+# 哥德堡盖斯 https://odds.500.com/fenxi/shuju-1084114.shtml
