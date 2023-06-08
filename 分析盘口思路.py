@@ -414,7 +414,7 @@ def parse_asia(match, url):
     if {"home_team_rank", "visit_team_rank", "home_score", "visit_score", "team_count", "match_round", "instant_pan_most"}.issubset(match.keys()):
         if match["match_round"] >= match["team_count"] / 2 + 1:
             if abs(match["home_team_rank"] - match["visit_team_rank"]) <= (3 if match["team_count"] > 10 else 2) and abs(match["instant_pan_most"]) >= 1.25:
-                print(f"\033[1;30;45m注意：主队排名{match['home_team_rank']}，客队排名{match['visit_team_rank']}，让球{match['instant_pan_most']}偏深，预计{'主队' if match['instant_pan_most'] < 0 else '客队'}会有一场大胜，至少赢{math.ceil(abs(match['instant_pan_most']))}球。\033[0m")
+                print(f"\033[1;30;45m注意：主队排名{match['home_team_rank']}，客队排名{match['visit_team_rank']}，让球{match['instant_pan_most']}偏深，预计{'主队' if match['instant_pan_most'] < 0 else '客队'}会有一场大胜，可以上独赢。\033[0m")
             if match["home_team_rank"] <= match["visit_team_rank"] - (match["team_count"] / 2) and match["home_score"] >= match["visit_score"] + 15:
                 if match["instant_pan_most"] >= -0.25:
                     print(f"\033[1;30;45m注意：主队排名{match['home_team_rank']}，客队排名{match['visit_team_rank']}，两者分差{match['home_score'] - match['visit_score']}，让球{match['instant_pan_most']}，主队盘口非常便宜！\033[0m")
