@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import math
 import requests
 from lxml import etree
 import pymysql
@@ -8,7 +7,6 @@ import time
 import datetime
 import scipy.stats as stats
 from decimal import Decimal
-import hashlib
 
 ###########################################################################
 # match的字段
@@ -963,8 +961,8 @@ def analyse_match():
         else:
             print(f"\033[1;31m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。\033[0m")
         if "match_category" in match_item and match_item["match_category"] in match_map["group_inaccuracy"]:
-            print("不准确的联赛，暂不预测")
-            continue
+            print("************************************不准确的联赛************************************")
+            # continue
         # match_item = parse_europe(match_item, detail_url.replace("shuju", "ouzhi"))
         # time.sleep(3)
         match_item = parse_asia(match_item, detail_url.replace("shuju", "yazhi"))
