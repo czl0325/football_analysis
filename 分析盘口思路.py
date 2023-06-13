@@ -1053,8 +1053,8 @@ def analyse_detail(detail_url):
 
 
 if __name__ == '__main__':
-    # analyse_match()
-    analyse_detail("https://odds.500.com/fenxi/shuju-1059560.shtml")
+    analyse_match()
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1059560.shtml")
 
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
