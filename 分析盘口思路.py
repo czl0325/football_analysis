@@ -73,10 +73,29 @@ asia_map = {
     "盈禾": "yh"
 }
 match_map = {
-    "group": ["英超", "英甲", "西甲", "意甲", "法甲", "德甲", "德丙联", "葡超", "荷甲", "英冠", "英足总杯", "欧冠", "欧罗巴", "德国杯", "意超杯", "意杯", "意乙", "意丙1A", "意丙1B", "意丙1C", "意青联", "法国杯", "西班牙杯", "非洲杯", "欧洲杯", "解放者杯", "西乙", "西丙1", "西丙2", "西丙3", "西丙4", "西协甲", "法乙", "德乙", "荷乙", "比杯", "瑞典超", "瑞典甲", "瑞典杯", "丹超", "瑞士超", "克罗甲", "塞甲联", "波甲", "波乙", "苏冠", "苏甲", "土甲", "苏超", "瑞士甲", "丹甲", "罗甲", "英乙", "比乙", "保超", "挪超", "挪甲", "德东北", "爱超", "爱甲", "黑山甲", "阿巴超", "埃及甲", "摩洛超", "阿尔及甲", "捷甲", "捷克乙", "黑山甲", "阿甲", "巴甲", "巴圣锦", "巴乙", "阿乙", "乌拉超", "智利甲", "厄瓜多尔甲", "秘鲁甲", "巴拉圭联", "墨西联", "墨西乙", "哥斯甲", "哥甲", "美职联", "澳超", "日职", "韩足杯", "日职乙", "日联杯", "K1联赛", "K2联赛", "印度超", "印度甲", "印尼超", "澳南超", "澳维超", "越南联", "伊朗超", "伊朗甲", "阿联超", "马来超", "泰超", "巴西杯", "欧会杯", "乌兹超", "冰岛联", "沙特联", "波黑超", "澳昆超", "中超", "中甲", "中协杯", "智甲", "智乙", "斯洛文甲", "南非超", "冰岛超", "卡塔联", "亚冠杯", "希腊超A", "厄甲", "奥甲", "奥乙", "巴拉联", "芬超", "南俱杯", "突尼斯甲", "挪威杯", "俄超", "葡杯", "日天皇杯", "世青赛"],
-    "group_inaccuracy": ["乌超", "葡甲", "比甲", "土超", "法丙"]
+    "group": [
+        # 欧洲
+        "英超", "英冠", "英甲", "英乙", "英足总杯", "西甲", "西乙", "西丙1", "西丙2", "西丙3", "西丙4", "西协甲", "西班牙杯", "意甲", "意乙", "意丙1A", "意丙1B", "意丙1C", "意青联", "意超杯", "意杯", "法甲", "法乙", "法国杯", "德甲", "德乙", "德丙联", "德东北", "德国杯", "荷甲", "荷乙", "荷杯", "葡超", "葡联杯", "比乙", "比杯", "瑞典超", "瑞典甲", "瑞典杯", "丹超", "丹甲", "丹麦杯", "瑞士超", "瑞士甲", "瑞士杯", "克罗甲", "克罗杯", "塞甲联", "波甲", "波乙", "波兰杯", "苏超", "苏冠", "苏甲", "土甲", "罗甲", "罗杯", "保超", "挪超", "挪甲", "挪威杯", "爱超", "爱甲", "黑山甲", "阿巴超", "捷甲", "捷克乙", "捷克杯", "波黑超", "斯洛文甲", "冰岛超", "希腊超A", "奥甲", "奥乙", "芬超", "俄超", "塞浦甲", "以超", "北爱超"
+        # 欧洲赛事  
+        "欧冠", "欧罗巴", "欧会杯",
+        # 南美洲
+        "巴甲", "巴圣锦", "巴乙", "巴西杯", "阿甲", "阿乙", "乌拉超", "秘鲁甲", "巴拉圭联", "解放者杯", "巴拉联", "南俱杯", "智甲", "智乙",
+        # 北美洲
+        "美职联", "公开赛", "美冠", "哥甲", "哥伦杯", "墨西联", "墨西乙", "墨西杯", "厄甲", "玻甲", "哥斯甲",
+        # 大洋洲
+        "澳超", "澳南超", "澳维超", "澳昆超", "澳西超",
+        # 亚洲赛事
+        "日职", "日职乙", "日天皇杯", "日联杯", "K1联赛", "K2联赛", "韩足杯", "印度超", "印度甲", "印尼超", "越南联", "伊朗超", "伊朗甲", "阿联超", "马来超", "泰超", "乌兹超", "沙特联", "沙特甲", "中超", "中甲", "中协杯", "卡塔联", "亚冠杯",
+        # 非洲
+        "埃及甲", "摩洛超", "阿尔及甲", "突尼斯甲", "南非超", "尼日超",
+        # 世界赛事
+        "非洲杯", "欧洲杯", "世青赛", "世界杯"
+        "乌超", "葡甲", "比甲", "土超", "法丙"],
+    # 不准确的联赛放下面来 ！！！！
+    "group_inaccuracy": []
+    # "group_inaccuracy": ["乌超", "葡甲", "比甲", "土超", "法丙"]
 }
-error_odds = Decimal('0.02')
+error_odds = Decimal('0.03')
 
 
 # 分析基本面
@@ -88,9 +107,7 @@ def parse_fundamentals(match, url):
     if len(match_group) > 0:
         match["match_group"] = match_group[0].strip()
         match_type = re.findall(r"(.*?)(第|分组|小组|资格赛|半|决赛|十六|八|季军|外围|排名|升|降|春|秋|16|附加赛|欧会杯资格附加.*?赛)", match["match_group"])
-        match_category = re.findall(
-            r"\d+/?\d+(.*?)(第|分组|小组|资格赛|半|决赛|十六|八|季军|外围|排名|升|降|春|秋|16|附加赛|欧会杯资格附加.*?赛)",
-            match["match_group"])
+        match_category = re.findall(r"\d+/?\d+(.*?)(第|分组|小组|资格赛|半|决赛|十六|八|季军|外围|排名|升|降|春|秋|16|附加赛|欧会杯资格附加.*?赛)", match["match_group"])
         match_round = re.findall(r"第(\d+)轮", match["match_group"])
         if len(match_type):
             match["match_type"] = match_type[0][0]
@@ -363,10 +380,20 @@ def parse_asia(match, url):
         instant_odds_home = asia_tr.xpath("./td[position()=3]/table/tbody/tr/td[1]/text()")[0].strip()
         if len(instant_odds_home) <= 0:
             continue
+        instant_odds_home_state = ""
+        if "↑" in instant_odds_home:
+            instant_odds_home_state = "up"
+        elif "↓" in instant_odds_home:
+            instant_odds_home_state = "down"
         instant_odds_home = Decimal(re.sub(r"[^(\d+|\.)]", "", instant_odds_home))
         instant_odds_visit = asia_tr.xpath("./td[position()=3]/table/tbody/tr/td[3]/text()")[0]
         if len(instant_odds_visit) <= 0:
             continue
+        instant_odds_visit_state = ""
+        if "↑" in instant_odds_visit:
+            instant_odds_visit_state = "up"
+        elif "↓" in instant_odds_visit:
+            instant_odds_visit_state = "down"
         instant_odds_visit = Decimal(re.sub(r"[^(\d+|\.)]", "", instant_odds_visit))
         if origin_odds in origin_pan_map:
             origin_pan_map[origin_odds] += 1
@@ -391,7 +418,9 @@ def parse_asia(match, url):
             "origin_odds_visit": origin_odds_visit,
             "instant_odds": instant_odds,
             "instant_odds_home": instant_odds_home,
-            "instant_odds_visit": instant_odds_visit
+            "instant_odds_home_state": instant_odds_home_state,
+            "instant_odds_visit": instant_odds_visit,
+            "instant_odds_visit_state": instant_odds_visit_state
         }
         odds_items.append(odds_item)
     match["odds_items"] = odds_items
@@ -599,11 +628,19 @@ def parse_asia(match, url):
     for odds in odds_items:
         if odds["company"] in asia_map and "match_filter" in match and match["match_filter"] is not None:
             company_value = asia_map[odds["company"]]
-            query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_{company_value} from football_500 where origin_pan_{company_value} = {odds['origin_odds']} and origin_pan_odds_home_{company_value} between {odds['origin_odds_home'] - error_odds} and {odds['origin_odds_home'] + error_odds} and origin_pan_odds_visit_{company_value} between {odds['origin_odds_visit'] - error_odds} and {odds['origin_odds_visit'] + error_odds} and instant_pan_{company_value} = {odds['instant_odds']} and match_group regexp '{match['match_filter']}' "
-            if odds['origin_odds_home'] < odds['instant_odds_home']:
-                query_sql += f" and instant_pan_odds_home_{company_value} between {odds['instant_odds_home']} and {odds['instant_odds_home'] + error_odds}  and instant_pan_odds_visit_{company_value} between {round(odds['instant_odds_visit'] - error_odds, 2)} and {odds['instant_odds_visit']}"
+            query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_{company_value} from football_500 where origin_pan_{company_value} = {odds['origin_odds']} and origin_pan_odds_home_{company_value} between {round(odds['origin_odds_home'] - error_odds / 2, 3)} and {round(odds['origin_odds_home'] + error_odds / 2, 3)} and origin_pan_odds_visit_{company_value} between {round(odds['origin_odds_visit'] - error_odds / 2, 3)} and {round(odds['origin_odds_visit'] + error_odds / 2, 3)} and instant_pan_{company_value} = {odds['instant_odds']} "
+            if odds["instant_odds_home_state"] == "up":
+                query_sql += f" and instant_pan_odds_home_{company_value} between {odds['instant_odds_home']} and {round(odds['instant_odds_home'] + error_odds, 3)}"
+            elif odds["instant_odds_home_state"] == "down":
+                query_sql += f" and instant_pan_odds_home_{company_value} between {round(odds['instant_odds_home'] - error_odds, 3)} and {odds['instant_odds_home']}"
             else:
-                query_sql += f" and instant_pan_odds_home_{company_value} between {odds['instant_odds_home'] - error_odds} and {odds['instant_odds_home']}  and instant_size_odds_visit_{company_value} between {odds['instant_odds_visit']} and {round(odds['instant_odds_visit'] + error_odds, 2)}"
+                query_sql += f" and instant_pan_odds_home_{company_value} between {round(odds['instant_odds_home'] - error_odds / 2, 3)} and {round(odds['instant_odds_home'] + error_odds / 2, 3)}"
+            if odds["instant_odds_visit_state"] == "up":
+                query_sql += f" and instant_pan_odds_visit_{company_value} between {odds['instant_odds_visit']} and {round(odds['instant_odds_visit'] + error_odds, 3)}"
+            elif odds["instant_odds_visit_state"] == "down":
+                query_sql += f" and instant_pan_odds_visit_{company_value} between {round(odds['instant_odds_visit'] - error_odds, 3)} and {odds['instant_odds_visit']}"
+            else:
+                query_sql += f" and instant_pan_odds_visit_{company_value} between {round(odds['instant_odds_visit'] - error_odds / 2, 3)} and {round(odds['instant_odds_visit'] + error_odds / 2, 3)}"
             if "team_count" in match and match["team_count"] > 0 and match["match_round"] > match["team_count"] / 4:
                 if match["home_team_rank"] and match["visit_team_rank"]:
                     query_sql += f" and home_team_rank {'<' if match['home_team_rank'] < match['visit_team_rank'] else '>'} visit_team_rank"
@@ -614,8 +651,9 @@ def parse_asia(match, url):
                     else:
                         distance = match["visit_score"] - match["home_score"]
                         query_sql += f" and visit_score - home_score >= {distance - 2}"
-            cursor.execute(query_sql)
+            query_sql += f" and match_group regexp '{match['match_filter']}';"
             # print(query_sql)
+            cursor.execute(query_sql)
             old_result = cursor.fetchall()
             result = [r for r in old_result if (r[0] != match["match_group"] and r[1] != match["home_team"] and r[2] != match["visit_team"])]
             if len(result) <= 0:
@@ -769,7 +807,7 @@ def parse_size(match, url):
                     team_map[res[1]]["visit_goal"] += int(score_lst[1])
                     team_map[res[1]]["visit_miss"] += int(score_lst[0])
                     team_map[res[1]]["visit_count"] += 1
-            if home_count > 0 and visit_count > 0:
+            if home_count > 3 and visit_count > 3:
                 home_exception = (home_goals / home_count) / (league_home_goals / len(result)) * (visit_miss / visit_count)
                 visit_exception = (visit_goals / visit_count) / (league_visit_goals / len(result)) * (home_miss / home_count)
                 home_avg = round(home_goals / home_count, 1)
@@ -792,115 +830,144 @@ def parse_size(match, url):
                 for key, value in size_dict.items():
                     size_str += f"({key}球：概率{round(value*100, 2)}%)  "
                 print(size_str)
+            else:
+                print(f"{match['home_team']}主场或{match['visit_team']}客场比赛场次不足4场，不计算泊松分布")
             all_matches = {}
-            for size_tr in size_trs:
-                company = size_tr.xpath("./td[2]/p/a/@title")
-                if len(company) <= 0:
-                    continue
-                company = company[0]
-                if company is None:
-                    continue
-                if company in asia_map:
-                    try:
-                        company_value = asia_map[company]
-                        origin_size = abs(Decimal(size_tr.xpath(
-                            "./td[position()=5]/table/tbody/tr/td[2]/@ref")[0]))
-                        origin_size_odds_home = Decimal(re.sub(r"[^(\d+|\.)]", "", size_tr.xpath(
-                            "./td[position()=5]/table/tbody/tr/td[1]/text()")[0]))
-                        origin_size_odds_visit = Decimal(re.sub(r"[^(\d+|\.)]", "", size_tr.xpath(
-                            "./td[position()=5]/table/tbody/tr/td[3]/text()")[0]))
-                        instant_size = abs(Decimal(size_tr.xpath(
-                            "./td[position()=3]/table/tbody/tr/td[2]/@ref")[0]))
-                        instant_size_odds_home = Decimal(re.sub(r"[^(\d+|\.)]", "", size_tr.xpath(
-                            "./td[position()=3]/table/tbody/tr/td[1]/text()")[0]))
-                        instant_size_odds_visit = Decimal(re.sub(r"[^(\d+|\.)]", "", size_tr.xpath(
-                            "./td[position()=3]/table/tbody/tr/td[3]/text()")[0]))
-                        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_size_{company_value} from football_500 where origin_size_{company_value} = {origin_size} and origin_size_odds_home_{company_value} between {origin_size_odds_home - error_odds} and {origin_size_odds_home + error_odds} and origin_size_odds_visit_{company_value} between {origin_size_odds_visit - error_odds} and {origin_size_odds_visit + error_odds} and instant_size_{company_value} = {instant_size}"
-                        if origin_size == instant_size:
-                            if origin_size_odds_home < instant_size_odds_home:
-                                query_sql += f" and instant_size_odds_home_{company_value} between {instant_size_odds_home} and {instant_size_odds_home + error_odds}  and instant_size_odds_visit_{company_value} between {instant_size_odds_visit - error_odds} and {instant_size_odds_visit}"
-                            else:
-                                query_sql += f" and instant_size_odds_home_{company_value} between {instant_size_odds_home - error_odds} and {instant_size_odds_home}  and instant_size_odds_visit_{company_value} between {instant_size_odds_visit} and {instant_size_odds_visit + error_odds}"
-                        else:
-                            query_sql += f" and instant_size_odds_home_{company_value} between {instant_size_odds_home - error_odds} and {instant_size_odds_home + error_odds} and instant_size_odds_visit_{company_value} between {instant_size_odds_visit - error_odds} and {instant_size_odds_visit + error_odds}"
-                        if "team_count" in match and match["team_count"] > 0 and match["match_round"] > match["team_count"] / 4:
-                            if match["home_team_rank"] and match["visit_team_rank"]:
-                                query_sql += f" and home_team_rank {'<' if match['home_team_rank'] < match['visit_team_rank'] else '>'} visit_team_rank"
-                            if "home_score" in match and match["home_score"] is not None and "visit_score" in match and match["visit_score"] is not None:
-                                if match["home_score"] > match["visit_score"]:
-                                    distance = match["home_score"] - match["visit_score"]
-                                    query_sql += f" and home_score - visit_score >= {distance - 2}"
-                                else:
-                                    distance = match["visit_score"] - match["home_score"]
-                                    query_sql += f" and visit_score - home_score >= {distance - 2}"
-                        cursor.execute(query_sql)
-                        result = cursor.fetchall()
-                        if len(result) > 0:
-                            for res in result:
-                                score_lst = res[3].split(":")
-                                key_str = f"{res[0]}_{res[1]}_{res[2]}"
-                                if key_str not in all_matches:
-                                    all_matches[key_str] = int(score_lst[0]) + int(score_lst[1])
-                    except Exception as e:
-                        print(f"遇到错误={str(e)}, 网址{match['url']}")
-                        continue
-            all_matches = dict(sorted(all_matches.items(), key=lambda item: item[1]))
-            size_dict = {}
-            for key, value in all_matches.items():
-                if value in size_dict:
-                    size_dict[value] += 1
-                else:
-                    size_dict[value] = 1
-            size_dict = dict(sorted(size_dict.items(), key=lambda item: item[1], reverse=True))
-            size_str = "大小同赔计算，按概率从大到小排列：\n"
-            for key, value in size_dict.items():
-                size_str += f"({key}球：{value}场)  "
-            print(size_str)
-            home_closed = []
-            visit_closed = []
+    for size_tr in size_trs:
+        company = size_tr.xpath("./td[2]/p/a/@title")
+        if len(company) <= 0:
+            continue
+        company = company[0]
+        if company is None:
+            continue
+        if company in asia_map:
             try:
-                for team in team_map:
-                    if team != match["home_team"] and team != match["visit_team"]:
-                        if team_map[team]["home_count"] <= 0 or team_map[team]["visit_count"] <= 0 or team_map[team]["home_count"] <= 0 or team_map[team]["visit_count"] <= 0 or team_map[match["visit_team"]]["visit_count"] <= 0 or team_map[match["home_team"]]["home_count"] <= 0:
-                            continue
-                        if abs(team_map[team]["home_goal"] / team_map[team]["home_count"] -
-                               team_map[match["home_team"]]["home_goal"] / team_map[match["home_team"]][
-                                   "home_count"]) <= 0.1 and abs(
-                            team_map[team]["home_miss"] / team_map[team]["home_count"] -
-                            team_map[match["home_team"]]["home_miss"] / team_map[match["home_team"]][
-                                "home_count"]) <= 0.1:
-                            home_closed.append(team)
-                        if abs(team_map[team]["visit_goal"] / team_map[team]["visit_count"] -
-                               team_map[match["visit_team"]]["visit_goal"] / team_map[match["visit_team"]][
-                                   "visit_count"]) <= 0.1 and abs(
-                            team_map[team]["visit_miss"] / team_map[team]["visit_count"] -
-                            team_map[match["visit_team"]]["visit_miss"] / team_map[match["visit_team"]][
-                                "visit_count"]) <= 0.1:
-                            visit_closed.append(team)
-                if len(visit_closed) > 0:
-                    print(f"与客队相近球队:{visit_closed}")
-                    print("对比主队与相似队伍战绩:")
-                    for team in visit_closed:
-                        cursor.execute(
-                            f"""select field_score from football_500 where home_team_full = '{match["home_team"]}' and visit_team_full = '{team}' and match_group regexp '{match["match_type"]}'""")
-                        result1 = cursor.fetchall()
-                        if len(result1) > 0:
-                            for res in result1:
-                                score_lst = res[0].split(":")
-                                print(f"{match['home_team']}vs{team}：比分{score_lst[0]}:{score_lst[1]}")
-                if len(home_closed) > 0:
-                    print(f"与主队相近球队:{home_closed}")
-                    print("对比客队与相似队伍战绩:")
-                    for team in home_closed:
-                        cursor.execute(
-                            f"""select field_score from football_500 where home_team_full = '{team}' and visit_team_full = '{match["visit_team"]}' and match_group regexp '{match["match_type"]}'""")
-                        result1 = cursor.fetchall()
-                        if len(result1) > 0:
-                            for res in result1:
-                                score_lst = res[0].split(":")
-                                print(f"{team}vs{match['visit_team']}: 比分{score_lst[0]}:{score_lst[1]}")
+                company_value = asia_map[company]
+                origin_size = abs(Decimal(size_tr.xpath(
+                    "./td[position()=5]/table/tbody/tr/td[2]/@ref")[0]))
+                origin_size_odds_home = Decimal(re.sub(r"[^(\d+|\.)]", "", size_tr.xpath(
+                    "./td[position()=5]/table/tbody/tr/td[1]/text()")[0]))
+                origin_size_odds_visit = Decimal(re.sub(r"[^(\d+|\.)]", "", size_tr.xpath(
+                    "./td[position()=5]/table/tbody/tr/td[3]/text()")[0]))
+                instant_size = abs(Decimal(size_tr.xpath(
+                    "./td[position()=3]/table/tbody/tr/td[2]/@ref")[0]))
+                instant_size_odds_home = size_tr.xpath("./td[position()=3]/table/tbody/tr/td[1]/text()")
+                if len(instant_size_odds_home) <= 0:
+                    continue
+                instant_size_odds_home = instant_size_odds_home[0]
+                instant_size_odds_home_state = ""
+                if "↑" in instant_size_odds_home:
+                    instant_size_odds_home_state = "up"
+                elif "↓" in instant_size_odds_home:
+                    instant_size_odds_home_state = "down"
+                instant_size_odds_home = Decimal(re.sub(r"[^(\d+|\.)]", "", instant_size_odds_home))
+                instant_size_odds_visit = size_tr.xpath(
+                    "./td[position()=3]/table/tbody/tr/td[3]/text()")
+                if len(instant_size_odds_visit) <= 0:
+                    continue
+                instant_size_odds_visit = instant_size_odds_visit[0]
+                instant_size_odds_visit_state = ""
+                if "↑" in instant_size_odds_visit:
+                    instant_size_odds_visit_state = "up"
+                elif "↓" in instant_size_odds_visit:
+                    instant_size_odds_visit_state = "down"
+                instant_size_odds_visit = Decimal(re.sub(r"[^(\d+|\.)]", "", instant_size_odds_visit))
+                query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_size_{company_value} from football_500 where origin_size_{company_value} = {origin_size} and origin_size_odds_home_{company_value} between {origin_size_odds_home - error_odds / 2} and {origin_size_odds_home + error_odds / 2} and origin_size_odds_visit_{company_value} between {origin_size_odds_visit - error_odds / 2} and {origin_size_odds_visit + error_odds / 2} and instant_size_{company_value} = {instant_size}"
+                if instant_size_odds_home_state == "up":
+                    query_sql += f" and instant_pan_odds_home_{company_value} between {instant_size_odds_home} and {round(instant_size_odds_home + error_odds, 3)}"
+                elif instant_size_odds_home_state == "down":
+                    query_sql += f" and instant_pan_odds_home_{company_value} between {round(instant_size_odds_home - error_odds, 3)} and {instant_size_odds_home}"
+                else:
+                    query_sql += f" and instant_pan_odds_home_{company_value} between {round(instant_size_odds_home - error_odds / 2, 3)} and {round(instant_size_odds_home + error_odds / 2, 3)}"
+                if instant_size_odds_visit_state == "up":
+                    query_sql += f" and instant_pan_odds_visit_{company_value} between {instant_size_odds_visit} and {round(instant_size_odds_visit + error_odds, 3)}"
+                elif instant_size_odds_visit_state == "down":
+                    query_sql += f" and instant_pan_odds_visit_{company_value} between {round(instant_size_odds_visit - error_odds, 3)} and {instant_size_odds_visit}"
+                else:
+                    query_sql += f" and instant_pan_odds_visit_{company_value} between {round(instant_size_odds_visit - error_odds / 2, 3)} and {round(instant_size_odds_visit + error_odds / 2, 3)}"
+                if "team_count" in match and match["team_count"] > 0 and match["match_round"] > match["team_count"] / 4:
+                    if match["home_team_rank"] and match["visit_team_rank"]:
+                        query_sql += f" and home_team_rank {'<' if match['home_team_rank'] < match['visit_team_rank'] else '>'} visit_team_rank"
+                    if "home_score" in match and match["home_score"] is not None and "visit_score" in match and match["visit_score"] is not None:
+                        if match["home_score"] > match["visit_score"]:
+                            distance = match["home_score"] - match["visit_score"]
+                            query_sql += f" and home_score - visit_score >= {distance - 2}"
+                        else:
+                            distance = match["visit_score"] - match["home_score"]
+                            query_sql += f" and visit_score - home_score >= {distance - 2}"
+                # print(query_sql)
+                cursor.execute(query_sql)
+                result = cursor.fetchall()
+                if len(result) > 0:
+                    for res in result:
+                        score_lst = res[3].split(":")
+                        key_str = f"{res[0]}_{res[1]}_{res[2]}"
+                        if key_str not in all_matches:
+                            all_matches[key_str] = int(score_lst[0]) + int(score_lst[1])
             except Exception as e:
                 print(f"遇到错误={str(e)}, 网址{match['url']}")
+                continue
+    all_matches = dict(sorted(all_matches.items(), key=lambda item: item[1]))
+    size_dict = {}
+    for key, value in all_matches.items():
+        if value in size_dict:
+            size_dict[value] += 1
+        else:
+            size_dict[value] = 1
+    size_dict = dict(sorted(size_dict.items(), key=lambda item: item[1], reverse=True))
+    if len(size_dict) > 0:
+        size_str = "大小同赔计算，按概率从大到小排列：\n"
+        for key, value in size_dict.items():
+            size_str += f"({key}球：{value}场)  "
+        print(size_str)
+    if "match_type" in match:
+        home_closed = []
+        visit_closed = []
+        try:
+            for team in team_map:
+                if team != match["home_team"] and team != match["visit_team"]:
+                    if team_map[team]["home_count"] <= 0 or team_map[team]["visit_count"] <= 0 or team_map[team][
+                        "home_count"] <= 0 or team_map[team]["visit_count"] <= 0 or team_map[match["visit_team"]][
+                        "visit_count"] <= 0 or team_map[match["home_team"]]["home_count"] <= 0:
+                        continue
+                    if abs(team_map[team]["home_goal"] / team_map[team]["home_count"] -
+                           team_map[match["home_team"]]["home_goal"] / team_map[match["home_team"]][
+                               "home_count"]) <= 0.1 and abs(
+                        team_map[team]["home_miss"] / team_map[team]["home_count"] -
+                        team_map[match["home_team"]]["home_miss"] / team_map[match["home_team"]][
+                            "home_count"]) <= 0.1:
+                        home_closed.append(team)
+                    if abs(team_map[team]["visit_goal"] / team_map[team]["visit_count"] -
+                           team_map[match["visit_team"]]["visit_goal"] / team_map[match["visit_team"]][
+                               "visit_count"]) <= 0.1 and abs(
+                        team_map[team]["visit_miss"] / team_map[team]["visit_count"] -
+                        team_map[match["visit_team"]]["visit_miss"] / team_map[match["visit_team"]][
+                            "visit_count"]) <= 0.1:
+                        visit_closed.append(team)
+            if len(visit_closed) > 0:
+                print(f"与客队相近球队:{visit_closed}")
+                print("对比主队与相似队伍战绩:")
+                for team in visit_closed:
+                    cursor.execute(
+                        f"""select field_score from football_500 where home_team_full = '{match["home_team"]}' and visit_team_full = '{team}' and match_group regexp '{match["match_type"]}'""")
+                    result1 = cursor.fetchall()
+                    if len(result1) > 0:
+                        for res in result1:
+                            score_lst = res[0].split(":")
+                            print(f"{match['home_team']}vs{team}：比分{score_lst[0]}:{score_lst[1]}")
+            if len(home_closed) > 0:
+                print(f"与主队相近球队:{home_closed}")
+                print("对比客队与相似队伍战绩:")
+                for team in home_closed:
+                    cursor.execute(
+                        f"""select field_score from football_500 where home_team_full = '{team}' and visit_team_full = '{match["visit_team"]}' and match_group regexp '{match["match_type"]}'""")
+                    result1 = cursor.fetchall()
+                    if len(result1) > 0:
+                        for res in result1:
+                            score_lst = res[0].split(":")
+                            print(f"{team}vs{match['visit_team']}: 比分{score_lst[0]}:{score_lst[1]}")
+        except Exception as e:
+            print(f"遇到错误={str(e)}, 网址{match['url']}")
     return match
 
 
@@ -986,8 +1053,8 @@ def analyse_detail(detail_url):
 
 
 if __name__ == '__main__':
-    analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1090532.shtml")
+    # analyse_match()
+    analyse_detail("https://odds.500.com/fenxi/shuju-1059560.shtml")
 
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
