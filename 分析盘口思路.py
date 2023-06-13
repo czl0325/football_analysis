@@ -89,7 +89,7 @@ match_map = {
         # 非洲
         "埃及甲", "摩洛超", "阿尔及甲", "突尼斯甲", "南非超", "尼日超",
         # 世界赛事
-        "非洲杯", "欧洲杯", "世青赛", "世界杯"
+        "非洲杯", "欧洲杯", "世青赛", "世界杯", "土伦杯",
         "乌超", "葡甲", "比甲", "土超", "法丙"],
     # 不准确的联赛放下面来 ！！！！
     "group_inaccuracy": []
@@ -106,8 +106,8 @@ def parse_fundamentals(match, url):
     match_group = html2.xpath("//div[@class='odds_header']//table//tr/td[3]//a[@class='hd_name']/text()")
     if len(match_group) > 0:
         match["match_group"] = match_group[0].strip()
-        match_type = re.findall(r"(.*?)(第|分组|小组|资格赛|半|决赛|十六|八|季军|外围|排名|升|降|春|秋|16|附加赛|欧会杯资格附加.*?赛)", match["match_group"])
-        match_category = re.findall(r"\d+/?\d+(.*?)(第|分组|小组|资格赛|半|决赛|十六|八|季军|外围|排名|升|降|春|秋|16|附加赛|欧会杯资格附加.*?赛)", match["match_group"])
+        match_type = re.findall(r"(.*?)(第|分组赛|小组赛|资格赛|半|决赛|十六|八|季军|外围|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛)", match["match_group"])
+        match_category = re.findall(r"\d+/?\d+(.*?)(第|分组赛|小组赛|资格赛|半|决赛|十六|八|季军|外围|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛)", match["match_group"])
         match_round = re.findall(r"第(\d+)轮", match["match_group"])
         if len(match_type):
             match["match_type"] = match_type[0][0]
@@ -832,7 +832,7 @@ def parse_size(match, url):
                 print(size_str)
             else:
                 print(f"{match['home_team']}主场或{match['visit_team']}客场比赛场次不足4场，不计算泊松分布")
-            all_matches = {}
+    all_matches = {}
     for size_tr in size_trs:
         company = size_tr.xpath("./td[2]/p/a/@title")
         if len(company) <= 0:
@@ -1053,8 +1053,8 @@ def analyse_detail(detail_url):
 
 
 if __name__ == '__main__':
-    analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1059560.shtml")
+    # analyse_match()
+    analyse_detail("https://odds.500.com/fenxi/shuju-1091374.shtml")
 
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
