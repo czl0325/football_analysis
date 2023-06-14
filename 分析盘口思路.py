@@ -75,7 +75,7 @@ asia_map = {
 match_map = {
     "group": [
         # 欧洲
-        "英超", "英冠", "英甲", "英乙", "英足总杯", "西甲", "西乙", "西丙1", "西丙2", "西丙3", "西丙4", "西协甲", "西班牙杯", "意甲", "意乙", "意丙1A", "意丙1B", "意丙1C", "意青联", "意超杯", "意杯", "法甲", "法乙", "法国杯", "德甲", "德乙", "德丙联", "德东北", "德国杯", "荷甲", "荷乙", "荷杯", "葡超", "葡联杯", "比乙", "比杯", "瑞典超", "瑞典甲", "瑞典杯", "丹超", "丹甲", "丹麦杯", "瑞士超", "瑞士甲", "瑞士杯", "克罗甲", "克罗杯", "塞甲联", "波甲", "波乙", "波兰杯", "苏超", "苏冠", "苏甲", "土甲", "罗甲", "罗杯", "保超", "挪超", "挪甲", "挪威杯", "爱超", "爱甲", "黑山甲", "阿巴超", "捷甲", "捷克乙", "捷克杯", "波黑超", "斯洛文甲", "冰岛超", "希腊超A", "奥甲", "奥乙", "芬超", "俄超", "塞浦甲", "以超", "北爱超"
+        "英超", "英冠", "英甲", "英乙", "英足总杯", "西甲", "西乙", "西丙1", "西丙2", "西丙3", "西丙4", "西协甲", "西班牙杯", "意甲", "意乙", "意丙1A", "意丙1B", "意丙1C", "意青联", "意超杯", "意杯", "法甲", "法乙", "法丙", "法国杯", "德甲", "德乙", "德丙联", "德东北", "德国杯", "荷甲", "荷乙", "荷杯", "葡超", "葡甲", "葡联杯", "比甲", "比乙", "比杯", "瑞典超", "瑞典甲", "瑞典杯", "丹超", "丹甲", "丹麦杯", "瑞士超", "瑞士甲", "瑞士杯", "克罗甲", "克罗杯", "塞甲联", "波甲", "波乙", "波兰杯", "苏超", "苏冠", "苏甲", "土超", "土甲", "罗甲", "罗杯", "保超", "挪超", "挪甲", "挪威杯", "爱超", "爱甲", "黑山甲", "阿巴超", "捷甲", "捷克乙", "捷克杯", "波黑超", "斯洛文甲", "冰岛超", "希腊超A", "奥甲", "奥乙", "芬超", "俄超", "塞浦甲", "以超", "北爱超", "乌超",
         # 欧洲赛事  
         "欧冠", "欧罗巴", "欧会杯",
         # 南美洲
@@ -89,8 +89,7 @@ match_map = {
         # 非洲
         "埃及甲", "摩洛超", "阿尔及甲", "突尼斯甲", "南非超", "尼日超",
         # 世界赛事
-        "非洲杯", "欧洲杯", "世青赛", "世界杯", "土伦杯",
-        "乌超", "葡甲", "比甲", "土超", "法丙"],
+        "非洲杯", "欧洲杯", "世青赛", "世界杯", "土伦杯"],
     # 不准确的联赛放下面来 ！！！！
     "group_inaccuracy": []
     # "group_inaccuracy": ["乌超", "葡甲", "比甲", "土超", "法丙"]
@@ -651,7 +650,7 @@ def parse_asia(match, url):
                     else:
                         distance = match["visit_score"] - match["home_score"]
                         query_sql += f" and visit_score - home_score >= {distance - 2}"
-            query_sql += f" and match_group regexp '{match['match_filter']}';"
+            # query_sql += f" and match_group regexp '{match['match_filter']}';"
             # print(query_sql)
             cursor.execute(query_sql)
             old_result = cursor.fetchall()
@@ -926,9 +925,7 @@ def parse_size(match, url):
         try:
             for team in team_map:
                 if team != match["home_team"] and team != match["visit_team"]:
-                    if team_map[team]["home_count"] <= 0 or team_map[team]["visit_count"] <= 0 or team_map[team][
-                        "home_count"] <= 0 or team_map[team]["visit_count"] <= 0 or team_map[match["visit_team"]][
-                        "visit_count"] <= 0 or team_map[match["home_team"]]["home_count"] <= 0:
+                    if team_map[team]["home_count"] <= 0 or team_map[team]["visit_count"] <= 0 or team_map[team]["home_count"] <= 0 or team_map[team]["visit_count"] <= 0 or team_map[match["visit_team"]]["visit_count"] <= 0 or team_map[match["home_team"]]["home_count"] <= 0:
                         continue
                     if abs(team_map[team]["home_goal"] / team_map[team]["home_count"] -
                            team_map[match["home_team"]]["home_goal"] / team_map[match["home_team"]][
@@ -1054,7 +1051,7 @@ def analyse_detail(detail_url):
 
 if __name__ == '__main__':
     analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1091374.shtml")
+    # analyse_detail("https://odds.500.com/fenxi/yazhi-1087484.shtml")
 
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
