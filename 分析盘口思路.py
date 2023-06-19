@@ -755,6 +755,7 @@ def parse_size(match, url):
     response.encoding = "gb2312"
     html = etree.HTML(response.text)
     size_trs = html.xpath("//table[@id='datatb']/tr")
+    team_map = {}
     if "match_type" in match:
         query_sql = f"""SELECT home_team_full, visit_team_full, field_score from football_500 where match_group regexp '^{match["match_type"]}'"""
         cursor.execute(query_sql)
@@ -767,7 +768,6 @@ def parse_size(match, url):
         visit_goals = 0
         visit_miss = 0
         visit_count = 0
-        team_map = {}
         if len(result) > 0:
             for res in result:
                 score_lst = res[2].split(':')
@@ -1051,7 +1051,7 @@ def analyse_detail(detail_url):
 
 if __name__ == '__main__':
     analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1073970.shtml")
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1091607.shtml")
 
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
