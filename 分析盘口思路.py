@@ -105,8 +105,8 @@ def parse_fundamentals(match, url):
     match_group = html2.xpath("//div[@class='odds_header']//table//tr/td[3]//a[@class='hd_name']/text()")
     if len(match_group) > 0:
         match["match_group"] = match_group[0].strip()
-        match_type = re.findall(r"(.*?)(第|分组赛|小组赛|资格赛|半|决赛|十六|八|季军|外围|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛)", match["match_group"])
-        match_category = re.findall(r"\d+/?\d+(.*?)(第|分组赛|小组赛|资格赛|半|决赛|十六|八|季军|外围|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛)", match["match_group"])
+        match_type = re.findall(r"(.*?)(第|分组赛|小组赛|资格赛|半|决赛|十六|八|季军|外围赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛)", match["match_group"])
+        match_category = re.findall(r"\d+/?\d+(.*?)(第|分组赛|小组赛|资格赛|半|决赛|十六|八|季军|外围赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛)", match["match_group"])
         match_round = re.findall(r"第(\d+)轮", match["match_group"])
         if len(match_type):
             match["match_type"] = match_type[0][0]
@@ -244,7 +244,7 @@ def parse_europe(match, url):
     league_even_count = 0
     league_lose_count = 0
     for odds in europe_odds:
-        if odds["company"] in asia_map and "match_filter" in match and match["match_filter"] is not None:
+        if odds["company"] in asia_map: # and "match_filter" in match and match["match_filter"] is not None:
             company_value = asia_map[odds["company"]]
             origin_win_up = odds["origin_win_odds"] if odds["instant_win_odds"] > odds["origin_win_odds"] else (odds["origin_win_odds"] + error_odds)
             origin_win_down = (odds["origin_win_odds"] - error_odds) if odds["instant_win_odds"] > odds[
@@ -625,7 +625,7 @@ def parse_asia(match, url):
     if {"origin_pan_most", "instant_pan_most"}.issubset(match):
         print(f"亚盘初盘让球{match['origin_pan_most']}，即时盘让球{match['instant_pan_most']}")
     for odds in odds_items:
-        if odds["company"] in asia_map and "match_filter" in match and match["match_filter"] is not None:
+        if odds["company"] in asia_map: # and "match_filter" in match and match["match_filter"] is not None:
             company_value = asia_map[odds["company"]]
             query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_{company_value} from football_500 where origin_pan_{company_value} = {odds['origin_odds']} and origin_pan_odds_home_{company_value} between {round(odds['origin_odds_home'] - error_odds / 2, 3)} and {round(odds['origin_odds_home'] + error_odds / 2, 3)} and origin_pan_odds_visit_{company_value} between {round(odds['origin_odds_visit'] - error_odds / 2, 3)} and {round(odds['origin_odds_visit'] + error_odds / 2, 3)} and instant_pan_{company_value} = {odds['instant_odds']} "
             if odds["instant_odds_home_state"] == "up":
@@ -672,7 +672,7 @@ def parse_asia(match, url):
                     temp_result = "输"
                 if match_hash in team_map:
                     if team_map[match_hash] != temp_result:
-                        print("有冲突的结果", team_map)
+                        print("有冲突的结果", match_hash, team_map[match_hash], temp_result)
                 else:
                     team_map[match_hash] = temp_result
                 if score_hash in score_map:
@@ -686,7 +686,7 @@ def parse_asia(match, url):
             all_lose_count += 1
         else:
             all_run_count += 1
-        if match["match_category"] in key:
+        if "match_category" in match and match["match_category"] in key:
             if team_map[key] == "赢":
                 league_win_count += 1
             elif team_map[key] == "输":
