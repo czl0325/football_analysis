@@ -105,8 +105,8 @@ def parse_fundamentals(match, url):
     match_group = html2.xpath("//div[@class='odds_header']//table//tr/td[3]//a[@class='hd_name']/text()")
     if len(match_group) > 0:
         match["match_group"] = match_group[0].strip()
-        match_type = re.findall(r"(.*?)(第|分组赛|小组赛|资格赛|半|决赛|十六|八|季军|外围赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛)", match["match_group"])
-        match_category = re.findall(r"\d+/?\d+(.*?)(第|分组赛|小组赛|资格赛|半|决赛|十六|八|季军|外围赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛)", match["match_group"])
+        match_type = re.findall(r"(.*?)(第\d+轮|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外围赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛)", match["match_group"])
+        match_category = re.findall(r"\d+/?\d+(.*?)(第\d+轮|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外围赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛)", match["match_group"])
         match_round = re.findall(r"第(\d+)轮", match["match_group"])
         if len(match_type):
             match["match_type"] = match_type[0][0]
@@ -1051,7 +1051,7 @@ def analyse_detail(detail_url):
 
 if __name__ == '__main__':
     analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1073970.shtml")
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1036076.shtml")
 
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
