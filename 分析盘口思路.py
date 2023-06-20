@@ -174,121 +174,122 @@ def parse_fundamentals(match, url):
             match_filter = "|".join(value)
             break
     match["match_filter"] = match_filter
-    # 主队近期进失球
-    cursor.execute(f"SELECT home_team_full, visit_team_full, field_score, match_result, match_pan FROM football_500 WHERE (home_team_full='{match['home_team']}' OR visit_team_full='{match['home_team']}') AND match_group REGEXP '{match['match_type']}' ORDER BY match_time DESC")
-    home_recent = cursor.fetchall()
-    home_goal = 0
-    home_miss = 0
-    home_home_goal = 0
-    home_home_miss = 0
-    home_visit_goal = 0
-    home_visit_miss = 0
-    home_count = 0
-    home_home_count = 0
-    home_visit_count = 0
-    home_result = ""
-    home_pan = ""
-    home_home_result = ""
-    home_home_pan = ""
-    home_visit_result = ""
-    home_visit_pan = ""
-    for (index, res) in enumerate(home_recent):
-        if index > 6:
-            break
-        score_lst = [int(score) for score in res[2].split(":")]
-        home_count += 1
-        if res[0] == match["home_team"]:
-            home_goal += score_lst[0]
-            home_miss += score_lst[1]
-            home_result += res[3]
-            home_pan += res[4]
-            if home_home_count < 4:
-                home_home_goal += score_lst[0]
-                home_home_miss = score_lst[1]
-                home_home_result += res[3]
-                home_home_pan += res[4]
-            home_home_count += 1
-        elif res[1] == match["home_team"]:
-            home_goal += score_lst[1]
-            home_miss += score_lst[0]
-            home_result += change_visit_result(res[3])
-            home_pan += change_visit_pan(res[4])
-            if home_visit_count < 4:
-                home_visit_goal += score_lst[1]
-                home_visit_miss += score_lst[0]
-                home_visit_result += change_visit_result(res[3])
-                home_visit_pan += change_visit_pan(res[4])
-            home_visit_count += 1
-    match["home_goal"] = round(home_goal / home_count, 2)
-    match["home_miss"] = round(home_miss / home_count, 2)
-    match["home_home_goal"] = round(home_home_goal / home_home_count, 2)
-    match["home_home_miss"] = round(home_home_miss / home_home_count, 2)
-    match["home_visit_goal"] = round(home_visit_goal / home_visit_count, 2)
-    match["home_visit_miss"] = round(home_visit_miss / home_visit_count, 2)
-    match["home_result"] = home_result
-    match["home_pan"] = home_pan
-    match["home_home_result"] = home_home_result
-    match["home_home_pan"] = home_home_pan
-    match["home_visit_result"] = home_visit_result
-    match["home_visit_pan"] = home_visit_pan
-    # 客队近期进失球
-    cursor.execute(
-        f"SELECT home_team_full, visit_team_full, field_score, match_result, match_pan FROM football_500 WHERE (home_team_full='{match['visit_team']}' OR visit_team_full='{match['visit_team']}') AND match_group REGEXP '{match['match_type']}' ORDER BY match_time DESC")
-    visit_recent = cursor.fetchall()
-    visit_goal = 0
-    visit_miss = 0
-    visit_home_goal = 0
-    visit_home_miss = 0
-    visit_visit_goal = 0
-    visit_visit_miss = 0
-    visit_count = 0
-    visit_home_count = 0
-    visit_visit_count = 0
-    visit_result = ""
-    visit_pan = ""
-    visit_home_result = ""
-    visit_home_pan = ""
-    visit_visit_result = ""
-    visit_visit_pan = ""
-    for (index, res) in enumerate(visit_recent):
-        if index > 6:
-            break
-        score_lst = [int(score) for score in res[2].split(":")]
-        visit_count += 1
-        if res[0] == match["visit_team"]:
-            visit_goal += score_lst[0]
-            visit_miss += score_lst[1]
-            visit_result += res[3]
-            visit_pan += res[4]
-            if visit_home_count < 4:
-                visit_home_goal += score_lst[0]
-                visit_home_miss = score_lst[1]
-                visit_home_result += res[3]
-                visit_home_pan += res[4]
-            visit_home_count += 1
-        elif res[1] == match["visit_team"]:
-            visit_goal += score_lst[1]
-            visit_miss += score_lst[0]
-            visit_result += change_visit_result(res[3])
-            visit_pan += change_visit_pan(res[4])
-            if visit_visit_count < 4:
-                visit_visit_goal += score_lst[1]
-                visit_visit_miss += score_lst[0]
-                visit_visit_result += change_visit_result(res[3])
-                visit_visit_pan += change_visit_pan(res[4])
-            visit_visit_count += 1
-    match["visit_goal"] = round(visit_goal / visit_count, 2)
-    match["visit_miss"] = round(visit_miss / visit_count, 2)
-    match["visit_home_goal"] = round(visit_home_goal / visit_home_count, 2)
-    match["visit_home_miss"] = round(visit_home_miss / visit_home_count, 2)
-    match["visit_visit_goal"] = round(visit_visit_goal / visit_visit_count, 2)
-    match["visit_visit_miss"] = round(visit_visit_miss / visit_visit_count, 2)
-    match["visit_result"] = visit_result
-    match["visit_pan"] = visit_pan
-    match["visit_home_result"] = visit_home_result
-    match["visit_home_pan"] = visit_home_pan
-    match["visit_visit_result"] = visit_visit_result
-    match["visit_visit_pan"] = visit_visit_pan
+    if "match_type" in match:
+        # 主队近期进失球
+        cursor.execute(f"SELECT home_team_full, visit_team_full, field_score, match_result, match_pan FROM football_500 WHERE (home_team_full='{match['home_team']}' OR visit_team_full='{match['home_team']}') AND match_group REGEXP '{match['match_type']}' ORDER BY match_time DESC")
+        home_recent = cursor.fetchall()
+        home_goal = 0
+        home_miss = 0
+        home_home_goal = 0
+        home_home_miss = 0
+        home_visit_goal = 0
+        home_visit_miss = 0
+        home_count = 0
+        home_home_count = 0
+        home_visit_count = 0
+        home_result = ""
+        home_pan = ""
+        home_home_result = ""
+        home_home_pan = ""
+        home_visit_result = ""
+        home_visit_pan = ""
+        for (index, res) in enumerate(home_recent):
+            if index > 6:
+                break
+            score_lst = [int(score) for score in res[2].split(":")]
+            home_count += 1
+            if res[0] == match["home_team"]:
+                home_goal += score_lst[0]
+                home_miss += score_lst[1]
+                home_result += res[3]
+                home_pan += res[4]
+                if home_home_count < 4:
+                    home_home_goal += score_lst[0]
+                    home_home_miss = score_lst[1]
+                    home_home_result += res[3]
+                    home_home_pan += res[4]
+                home_home_count += 1
+            elif res[1] == match["home_team"]:
+                home_goal += score_lst[1]
+                home_miss += score_lst[0]
+                home_result += change_visit_result(res[3])
+                home_pan += change_visit_pan(res[4])
+                if home_visit_count < 4:
+                    home_visit_goal += score_lst[1]
+                    home_visit_miss += score_lst[0]
+                    home_visit_result += change_visit_result(res[3])
+                    home_visit_pan += change_visit_pan(res[4])
+                home_visit_count += 1
+        match["home_goal"] = round(home_goal / home_count, 2)
+        match["home_miss"] = round(home_miss / home_count, 2)
+        match["home_home_goal"] = round(home_home_goal / home_home_count, 2)
+        match["home_home_miss"] = round(home_home_miss / home_home_count, 2)
+        match["home_visit_goal"] = round(home_visit_goal / home_visit_count, 2)
+        match["home_visit_miss"] = round(home_visit_miss / home_visit_count, 2)
+        match["home_result"] = home_result
+        match["home_pan"] = home_pan
+        match["home_home_result"] = home_home_result
+        match["home_home_pan"] = home_home_pan
+        match["home_visit_result"] = home_visit_result
+        match["home_visit_pan"] = home_visit_pan
+        # 客队近期进失球
+        cursor.execute(
+            f"SELECT home_team_full, visit_team_full, field_score, match_result, match_pan FROM football_500 WHERE (home_team_full='{match['visit_team']}' OR visit_team_full='{match['visit_team']}') AND match_group REGEXP '{match['match_type']}' ORDER BY match_time DESC")
+        visit_recent = cursor.fetchall()
+        visit_goal = 0
+        visit_miss = 0
+        visit_home_goal = 0
+        visit_home_miss = 0
+        visit_visit_goal = 0
+        visit_visit_miss = 0
+        visit_count = 0
+        visit_home_count = 0
+        visit_visit_count = 0
+        visit_result = ""
+        visit_pan = ""
+        visit_home_result = ""
+        visit_home_pan = ""
+        visit_visit_result = ""
+        visit_visit_pan = ""
+        for (index, res) in enumerate(visit_recent):
+            if index > 6:
+                break
+            score_lst = [int(score) for score in res[2].split(":")]
+            visit_count += 1
+            if res[0] == match["visit_team"]:
+                visit_goal += score_lst[0]
+                visit_miss += score_lst[1]
+                visit_result += res[3]
+                visit_pan += res[4]
+                if visit_home_count < 4:
+                    visit_home_goal += score_lst[0]
+                    visit_home_miss = score_lst[1]
+                    visit_home_result += res[3]
+                    visit_home_pan += res[4]
+                visit_home_count += 1
+            elif res[1] == match["visit_team"]:
+                visit_goal += score_lst[1]
+                visit_miss += score_lst[0]
+                visit_result += change_visit_result(res[3])
+                visit_pan += change_visit_pan(res[4])
+                if visit_visit_count < 4:
+                    visit_visit_goal += score_lst[1]
+                    visit_visit_miss += score_lst[0]
+                    visit_visit_result += change_visit_result(res[3])
+                    visit_visit_pan += change_visit_pan(res[4])
+                visit_visit_count += 1
+        match["visit_goal"] = round(visit_goal / visit_count, 2)
+        match["visit_miss"] = round(visit_miss / visit_count, 2)
+        match["visit_home_goal"] = round(visit_home_goal / visit_home_count, 2)
+        match["visit_home_miss"] = round(visit_home_miss / visit_home_count, 2)
+        match["visit_visit_goal"] = round(visit_visit_goal / visit_visit_count, 2)
+        match["visit_visit_miss"] = round(visit_visit_miss / visit_visit_count, 2)
+        match["visit_result"] = visit_result
+        match["visit_pan"] = visit_pan
+        match["visit_home_result"] = visit_home_result
+        match["visit_home_pan"] = visit_home_pan
+        match["visit_visit_result"] = visit_visit_result
+        match["visit_visit_pan"] = visit_visit_pan
     return match
 
 
@@ -1027,10 +1028,10 @@ def parse_size(match, url):
                     if "home_score" in match and match["home_score"] is not None and "visit_score" in match and match["visit_score"] is not None:
                         if match["home_score"] > match["visit_score"]:
                             distance = match["home_score"] - match["visit_score"]
-                            query_sql += f" and home_score - visit_score >= {distance - 2}"
+                            query_sql += f" and home_score - visit_score >= {distance}"
                         else:
                             distance = match["visit_score"] - match["home_score"]
-                            query_sql += f" and visit_score - home_score >= {distance - 2}"
+                            query_sql += f" and visit_score - home_score >= {distance}"
                 # print(query_sql)
                 cursor.execute(query_sql)
                 result = cursor.fetchall()
@@ -1137,12 +1138,12 @@ def analyse_match():
             continue
         if time_diff > 3600 * 2 and is_start == "未":
             break
-        is_friend = tr.xpath("./td[2]/a/text()")
-        if len(is_friend) <= 0:
-            continue
-        is_friend = is_friend[0]
-        if "友谊" in is_friend:
-            continue
+        # is_friend = tr.xpath("./td[2]/a/text()")
+        # if len(is_friend) <= 0:
+        #     continue
+        # is_friend = is_friend[0]
+        # if "友谊" in is_friend:
+        #     continue
         # if is_friend != "英超" or is_friend != "意甲":
         #     continue
         pan = tr.xpath("./td[7]/div/a[2]/text()")
@@ -1187,8 +1188,8 @@ def analyse_detail(detail_url):
 
 
 if __name__ == '__main__':
-    # analyse_match()
-    analyse_detail("https://odds.500.com/fenxi/shuju-1073177.shtml")
+    analyse_match()
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1073177.shtml")
 
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
