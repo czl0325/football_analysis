@@ -331,11 +331,9 @@ def parse_europe(match, url):
             if league_pan_result["胜"] > 0 or league_pan_result["平"] > 0 or league_pan_result["负"] > 0:
                 print(
                     f"\033[4;34m欧赔本联赛匹配结果：{odds['company']}, 胜:{league_pan_result['胜']}, 平:{league_pan_result['平']}, 负:{league_pan_result['负']}\033[0m")
-                if league_pan_result["胜"] > league_pan_result["平"] and league_pan_result["胜"] > league_pan_result[
-                    "负"]:
+                if league_pan_result["胜"] > league_pan_result["平"] and league_pan_result["胜"] > league_pan_result["负"]:
                     league_pan.append("胜")
-                elif league_pan_result["平"] > league_pan_result["胜"] and league_pan_result["平"] > league_pan_result[
-                    "负"]:
+                elif league_pan_result["平"] > league_pan_result["胜"] and league_pan_result["平"] > league_pan_result["负"]:
                     league_pan.append("平")
                 elif league_pan_result["负"] > league_pan_result["胜"] and league_pan_result["负"] > league_pan_result[
                     "平"]:
@@ -564,7 +562,7 @@ def parse_asia(match, url):
         visit_pan_status = []
         visit_res_status = []
         history_count = 6
-        query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan, match_result from football_500 where (home_team_full = '{match['home_team']}' or visit_team_full = '{match['home_team']}') and match_time < '{match['match_time']}' order by match_time desc limit {history_count};"
+        query_sql = f"SELECT match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_pan, match_result FROM football_500 WHERE (home_team_full = '{match['home_team']}' OR visit_team_full = '{match['home_team']}') AND match_time < '{match['match_time']}' AND DATE_FORMAT(match_time, '%Y-%m-%d') > DATE_SUB(match_time, interval 0.5 year) ORDER BY match_time DESC LIMIT {history_count};"
         cursor.execute(query_sql)
         result = cursor.fetchall()
         if len(result) >= history_count:
@@ -1051,7 +1049,7 @@ def analyse_detail(detail_url):
 
 if __name__ == '__main__':
     analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1091607.shtml")
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1086367.shtml")
 
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
