@@ -27,6 +27,13 @@ from decimal import Decimal
 # match_filter：赛事筛选条件
 # odds_items：每家公司赔率数组 {'company': 开盘公司, 'origin_odds': 初赔, 'origin_odds_home': 主队初赔水位, 'origin_odds_visit': 客队初赔水位, 'instant_odds': 即赔, 'instant_odds_home': 主队即赔水位, 'instant_odds_visit': 客队即赔水位}
 ###########################################################################
+####################### 参数配置 #######################
+# 是否要对比友谊赛
+need_friend = False
+# 水位误差范围
+error_odds = Decimal('0.03')
+#######################################################
+
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
@@ -94,7 +101,6 @@ match_map = {
     "group_inaccuracy": []
     # "group_inaccuracy": ["乌超", "葡甲", "比甲", "土超", "法丙"]
 }
-error_odds = Decimal('0.03')
 
 
 def change_visit_result(result):
@@ -123,8 +129,8 @@ def parse_fundamentals(match, url):
     match_group = html2.xpath("//div[@class='odds_header']//table//tr/td[3]//a[@class='hd_name']/text()")
     if len(match_group) > 0:
         match["match_group"] = match_group[0].strip()
-        match_type = re.findall(r"(.*?)(第\d+轮|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外围赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛)", match["match_group"])
-        match_category = re.findall(r"\d+/?\d+(.*?)(第\d+轮|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外围赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛)", match["match_group"])
+        match_type = re.findall(r"(.*?)(第\d+轮|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛)", match["match_group"])
+        match_category = re.findall(r"\d+/?\d+(.*?)(第\d+轮|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛)", match["match_group"])
         match_round = re.findall(r"第(\d+)轮", match["match_group"])
         if len(match_type):
             match["match_type"] = match_type[0][0]
@@ -220,12 +226,15 @@ def parse_fundamentals(match, url):
                     home_visit_result += change_visit_result(res[3])
                     home_visit_pan += change_visit_pan(res[4])
                 home_visit_count += 1
-        match["home_goal"] = round(home_goal / home_count, 2)
-        match["home_miss"] = round(home_miss / home_count, 2)
-        match["home_home_goal"] = round(home_home_goal / home_home_count, 2)
-        match["home_home_miss"] = round(home_home_miss / home_home_count, 2)
-        match["home_visit_goal"] = round(home_visit_goal / home_visit_count, 2)
-        match["home_visit_miss"] = round(home_visit_miss / home_visit_count, 2)
+        if home_count > 0:
+            match["home_goal"] = round(home_goal / home_count, 2)
+            match["home_miss"] = round(home_miss / home_count, 2)
+        if home_home_count > 0:
+            match["home_home_goal"] = round(home_home_goal / home_home_count, 2)
+            match["home_home_miss"] = round(home_home_miss / home_home_count, 2)
+        if home_visit_count > 0:
+            match["home_visit_goal"] = round(home_visit_goal / home_visit_count, 2)
+            match["home_visit_miss"] = round(home_visit_miss / home_visit_count, 2)
         match["home_result"] = home_result
         match["home_pan"] = home_pan
         match["home_home_result"] = home_home_result
@@ -278,12 +287,15 @@ def parse_fundamentals(match, url):
                     visit_visit_result += change_visit_result(res[3])
                     visit_visit_pan += change_visit_pan(res[4])
                 visit_visit_count += 1
-        match["visit_goal"] = round(visit_goal / visit_count, 2)
-        match["visit_miss"] = round(visit_miss / visit_count, 2)
-        match["visit_home_goal"] = round(visit_home_goal / visit_home_count, 2)
-        match["visit_home_miss"] = round(visit_home_miss / visit_home_count, 2)
-        match["visit_visit_goal"] = round(visit_visit_goal / visit_visit_count, 2)
-        match["visit_visit_miss"] = round(visit_visit_miss / visit_visit_count, 2)
+        if visit_count > 0:
+            match["visit_goal"] = round(visit_goal / visit_count, 2)
+            match["visit_miss"] = round(visit_miss / visit_count, 2)
+        if visit_home_count > 0:
+            match["visit_home_goal"] = round(visit_home_goal / visit_home_count, 2)
+            match["visit_home_miss"] = round(visit_home_miss / visit_home_count, 2)
+        if visit_visit_count > 0:
+            match["visit_visit_goal"] = round(visit_visit_goal / visit_visit_count, 2)
+            match["visit_visit_miss"] = round(visit_visit_miss / visit_visit_count, 2)
         match["visit_result"] = visit_result
         match["visit_pan"] = visit_pan
         match["visit_home_result"] = visit_home_result
@@ -1138,12 +1150,12 @@ def analyse_match():
             continue
         if time_diff > 3600 * 2 and is_start == "未":
             break
-        # is_friend = tr.xpath("./td[2]/a/text()")
-        # if len(is_friend) <= 0:
-        #     continue
-        # is_friend = is_friend[0]
-        # if "友谊" in is_friend:
-        #     continue
+        is_friend = tr.xpath("./td[2]/a/text()")
+        if len(is_friend) <= 0:
+            continue
+        is_friend = is_friend[0]
+        if "友谊" in is_friend and need_friend == False:
+            continue
         # if is_friend != "英超" or is_friend != "意甲":
         #     continue
         pan = tr.xpath("./td[7]/div/a[2]/text()")
