@@ -27,12 +27,12 @@ from decimal import Decimal
 # match_filter：赛事筛选条件
 # odds_items：每家公司赔率数组 {'company': 开盘公司, 'origin_odds': 初赔, 'origin_odds_home': 主队初赔水位, 'origin_odds_visit': 客队初赔水位, 'instant_odds': 即赔, 'instant_odds_home': 主队即赔水位, 'instant_odds_visit': 客队即赔水位}
 ###########################################################################
-####################### 参数配置 #######################
+###########################################################################
 # 是否要对比友谊赛
 need_friend = False
 # 水位误差范围
 error_odds = Decimal('0.03')
-#######################################################
+###########################################################################
 
 
 headers = {
@@ -129,8 +129,8 @@ def parse_fundamentals(match, url):
     match_group = html2.xpath("//div[@class='odds_header']//table//tr/td[3]//a[@class='hd_name']/text()")
     if len(match_group) > 0:
         match["match_group"] = match_group[0].strip()
-        match_type = re.findall(r"(.*?)(第\d+轮|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛)", match["match_group"])
-        match_category = re.findall(r"\d+/?\d+(.*?)(第\d+轮|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛)", match["match_group"])
+        match_type = re.findall(r"(.*?)(第\d+轮|第.*?圈|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛)", match["match_group"])
+        match_category = re.findall(r"\d+/?\d+(.*?)(第\d+轮|第.*?圈|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛)", match["match_group"])
         match_round = re.findall(r"第(\d+)轮", match["match_group"])
         if len(match_type):
             match["match_type"] = match_type[0][0]
@@ -182,7 +182,7 @@ def parse_fundamentals(match, url):
     match["match_filter"] = match_filter
     if "match_type" in match:
         # 主队近期进失球
-        cursor.execute(f"SELECT home_team_full, visit_team_full, field_score, match_result, match_pan FROM football_500 WHERE (home_team_full='{match['home_team']}' OR visit_team_full='{match['home_team']}') AND match_group REGEXP '{match['match_type']}' ORDER BY match_time DESC")
+        cursor.execute(f"SELECT home_team_full, visit_team_full, field_score, match_result, match_pan FROM football_500 WHERE (home_team_full='{match['home_team']}' OR visit_team_full='{match['home_team']}') AND match_group REGEXP '{match['match_type']}' AND match_time < '{match['match_time']}' ORDER BY match_time DESC")
         home_recent = cursor.fetchall()
         home_goal = 0
         home_miss = 0
@@ -200,32 +200,35 @@ def parse_fundamentals(match, url):
         home_visit_result = ""
         home_visit_pan = ""
         for (index, res) in enumerate(home_recent):
-            if index > 6:
-                break
             score_lst = [int(score) for score in res[2].split(":")]
-            home_count += 1
             if res[0] == match["home_team"]:
-                home_goal += score_lst[0]
-                home_miss += score_lst[1]
-                home_result += res[3]
-                home_pan += res[4]
+                if home_count < 6:
+                    home_goal += score_lst[0]
+                    home_miss += score_lst[1]
+                    home_result += res[3]
+                    home_pan += res[4]
+                    home_count += 1
                 if home_home_count < 4:
                     home_home_goal += score_lst[0]
                     home_home_miss = score_lst[1]
                     home_home_result += res[3]
                     home_home_pan += res[4]
-                home_home_count += 1
+                    home_home_count += 1
             elif res[1] == match["home_team"]:
-                home_goal += score_lst[1]
-                home_miss += score_lst[0]
-                home_result += change_visit_result(res[3])
-                home_pan += change_visit_pan(res[4])
+                if home_count < 6:
+                    home_goal += score_lst[1]
+                    home_miss += score_lst[0]
+                    home_result += change_visit_result(res[3])
+                    home_pan += change_visit_pan(res[4])
+                    home_count += 1
                 if home_visit_count < 4:
                     home_visit_goal += score_lst[1]
                     home_visit_miss += score_lst[0]
                     home_visit_result += change_visit_result(res[3])
                     home_visit_pan += change_visit_pan(res[4])
-                home_visit_count += 1
+                    home_visit_count += 1
+            if home_count >= 6 and home_home_count >= 4 and home_visit_count >= 4:
+                break
         if home_count > 0:
             match["home_goal"] = round(home_goal / home_count, 2)
             match["home_miss"] = round(home_miss / home_count, 2)
@@ -243,7 +246,7 @@ def parse_fundamentals(match, url):
         match["home_visit_pan"] = home_visit_pan
         # 客队近期进失球
         cursor.execute(
-            f"SELECT home_team_full, visit_team_full, field_score, match_result, match_pan FROM football_500 WHERE (home_team_full='{match['visit_team']}' OR visit_team_full='{match['visit_team']}') AND match_group REGEXP '{match['match_type']}' ORDER BY match_time DESC")
+            f"SELECT home_team_full, visit_team_full, field_score, match_result, match_pan FROM football_500 WHERE (home_team_full='{match['visit_team']}' OR visit_team_full='{match['visit_team']}') AND match_group REGEXP '{match['match_type']}' AND match_time < '{match['match_time']}' ORDER BY match_time DESC")
         visit_recent = cursor.fetchall()
         visit_goal = 0
         visit_miss = 0
@@ -261,32 +264,35 @@ def parse_fundamentals(match, url):
         visit_visit_result = ""
         visit_visit_pan = ""
         for (index, res) in enumerate(visit_recent):
-            if index > 6:
-                break
             score_lst = [int(score) for score in res[2].split(":")]
-            visit_count += 1
             if res[0] == match["visit_team"]:
-                visit_goal += score_lst[0]
-                visit_miss += score_lst[1]
-                visit_result += res[3]
-                visit_pan += res[4]
+                if visit_count < 6:
+                    visit_goal += score_lst[0]
+                    visit_miss += score_lst[1]
+                    visit_result += res[3]
+                    visit_pan += res[4]
+                    visit_count += 1
                 if visit_home_count < 4:
                     visit_home_goal += score_lst[0]
                     visit_home_miss = score_lst[1]
                     visit_home_result += res[3]
                     visit_home_pan += res[4]
-                visit_home_count += 1
+                    visit_home_count += 1
             elif res[1] == match["visit_team"]:
-                visit_goal += score_lst[1]
-                visit_miss += score_lst[0]
-                visit_result += change_visit_result(res[3])
-                visit_pan += change_visit_pan(res[4])
+                if visit_count < 6:
+                    visit_goal += score_lst[1]
+                    visit_miss += score_lst[0]
+                    visit_result += change_visit_result(res[3])
+                    visit_pan += change_visit_pan(res[4])
+                    visit_count += 1
                 if visit_visit_count < 4:
                     visit_visit_goal += score_lst[1]
                     visit_visit_miss += score_lst[0]
                     visit_visit_result += change_visit_result(res[3])
                     visit_visit_pan += change_visit_pan(res[4])
-                visit_visit_count += 1
+                    visit_visit_count += 1
+            if visit_count >= 6 and visit_home_count >= 4 and visit_visit_count >= 4:
+                break
         if visit_count > 0:
             match["visit_goal"] = round(visit_goal / visit_count, 2)
             match["visit_miss"] = round(visit_miss / visit_count, 2)
@@ -381,22 +387,21 @@ def parse_europe(match, url):
         }
         europe_odds.append(europe_odd)
     match["europe_odds"] = europe_odds
-    whole_pan = []
-    league_pan = []
     all_win_count = 0
-    all_even_count = 0
     all_lose_count = 0
+    all_even_count = 0
     league_win_count = 0
-    league_even_count = 0
     league_lose_count = 0
+    league_even_count = 0
+    team_map = {}
+    score_map = {}
     for odds in europe_odds:
-        if odds["company"] in asia_map: # and "match_filter" in match and match["match_filter"] is not None:
-            company_value = asia_map[odds["company"]]
+        if odds["company"] in europe_map:
+            company_value = europe_map[odds["company"]]
             origin_win_up = odds["origin_win_odds"] if odds["instant_win_odds"] > odds["origin_win_odds"] else (odds["origin_win_odds"] + error_odds)
             origin_win_down = (odds["origin_win_odds"] - error_odds) if odds["instant_win_odds"] > odds[
                 "origin_win_odds"] else odds["origin_win_odds"]
-            origin_even_up = odds["origin_even_odds"] if odds["instant_even_odds"] > odds["origin_even_odds"] else (
-                    odds["origin_even_odds"] + error_odds)
+            origin_even_up = odds["origin_even_odds"] if odds["instant_even_odds"] > odds["origin_even_odds"] else (odds["origin_even_odds"] + error_odds)
             origin_even_down = (odds["origin_even_odds"] - error_odds) if odds["instant_even_odds"] > odds[
                 "origin_even_odds"] else odds["origin_even_odds"]
             origin_lose_up = odds["origin_lose_odds"] if odds["instant_lose_odds"] > odds["origin_lose_odds"] else (
@@ -415,81 +420,110 @@ def parse_europe(match, url):
                 "origin_lose_odds"] else odds["instant_lose_odds"]
             instant_lose_down = odds["instant_lose_odds"] if odds["instant_lose_odds"] > odds[
                 "origin_lose_odds"] else (odds["instant_lose_odds"] - error_odds)
-            query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_{company_value} from football_500 where origin_win_odds_{company_value} between {origin_win_down} and {origin_win_up} and origin_even_odds_{company_value} between {origin_even_down} and {origin_even_up} and origin_lose_odds_{company_value} between {origin_lose_down} and {origin_lose_up} and instant_win_odds_{company_value} between {instant_win_down} and {instant_win_up} and instant_even_odds_{company_value} between {instant_even_down} and {instant_even_up} and instant_lose_odds_{company_value} between {instant_lose_down} and {instant_lose_up} and match_group regexp '{match['match_filter']}' "
+            query_sql = f"select match_group, home_team_full, visit_team_full, field_score from football_500 where origin_win_odds_{company_value} between {origin_win_down} and {origin_win_up} and origin_even_odds_{company_value} between {origin_even_down} and {origin_even_up} and origin_lose_odds_{company_value} between {origin_lose_down} and {origin_lose_up} and instant_win_odds_{company_value} between {instant_win_down} and {instant_win_up} and instant_even_odds_{company_value} between {instant_even_down} and {instant_even_up} and instant_lose_odds_{company_value} between {instant_lose_down} and {instant_lose_up} "
             if "team_count" in match and match["team_count"] > 0 and match["match_round"] > match["team_count"] / 2:
                 if match["home_team_rank"] and match["visit_team_rank"]:
                     query_sql += f" and home_team_rank {'<' if match['home_team_rank'] < match['visit_team_rank'] else '>'} visit_team_rank"
                 if "home_score" in match and match["home_score"] is not None and "visit_score" in match and match["visit_score"] is not None:
                     if match["home_score"] > match["visit_score"]:
                         distance = match["home_score"] - match["visit_score"]
-                        query_sql += f" and home_score - visit_score >= {distance - 2}"
+                        query_sql += f" and home_score - visit_score >= {distance}"
                     else:
                         distance = match["visit_score"] - match["home_score"]
-                        query_sql += f" and visit_score - home_score >= {distance - 2}"
+                        query_sql += f" and visit_score - home_score >= {distance}"
             cursor.execute(query_sql)
             result = cursor.fetchall()
             if len(result) <= 0:
                 continue
-            pan_result = {
-                "胜": 0,
-                "平": 0,
-                "负": 0,
-            }
-            league_pan_result = {
-                "胜": 0,
-                "平": 0,
-                "负": 0,
-            }
             for r in result:
                 score_lst = r[3].split(":")
                 if len(score_lst) != 2:
                     continue
                 home_score = int(score_lst[0])
                 visit_score = int(score_lst[1])
+                match_hash = r[0] + "_" + r[1] + "_" + r[2]
+                score_hash = f"{r[3]}_{match_hash}"
+                temp_result = "平"
                 if home_score > visit_score:
-                    pan_result["胜"] += 1
-                elif home_score == visit_score:
-                    pan_result["平"] += 1
+                    temp_result = "胜"
+                elif home_score < visit_score:
+                    temp_result = "负"
+                if match_hash in team_map:
+                    if team_map[match_hash] != temp_result:
+                        print("有冲突的结果", match_hash, team_map[match_hash], temp_result)
                 else:
-                    pan_result["负"] += 1
-                if match["match_category"] in r[0]:
-                    if home_score > visit_score:
-                        league_pan_result["胜"] += 1
-                    elif home_score == visit_score:
-                        league_pan_result["平"] += 1
-                    else:
-                        league_pan_result["负"] += 1
-            print(f"欧赔全网匹配结果：{odds['company']}, 胜:{pan_result['胜']}, 平:{pan_result['平']}, 负:{pan_result['负']}")
-            all_win_count += pan_result["胜"]
-            all_even_count += pan_result["平"]
-            all_lose_count += pan_result["负"]
-            if pan_result["胜"] > pan_result["平"] and pan_result["胜"] > pan_result["负"]:
-                whole_pan.append("胜")
-            elif pan_result["平"] > pan_result["胜"] and pan_result["平"] > pan_result["负"]:
-                whole_pan.append("平")
-            elif pan_result["负"] > pan_result["胜"] and pan_result["负"] > pan_result["平"]:
-                whole_pan.append("负")
+                    team_map[match_hash] = temp_result
+                if score_hash in score_map:
+                    score_map[score_hash] += 1
+                else:
+                    score_map[score_hash] = 1
+    for key in team_map:
+        if team_map[key] == "胜":
+            all_win_count += 1
+        elif team_map[key] == "负":
+            all_lose_count += 1
+        else:
+            all_even_count += 1
+        if "match_category" in match and match["match_category"] in key:
+            if team_map[key] == "赢":
+                league_win_count += 1
+            elif team_map[key] == "输":
+                league_lose_count += 1
             else:
-                whole_pan.append("均势")
-            league_win_count += league_pan_result["胜"]
-            league_even_count += league_pan_result["平"]
-            league_lose_count += league_pan_result["负"]
-            if league_pan_result["胜"] > 0 or league_pan_result["平"] > 0 or league_pan_result["负"] > 0:
-                print(
-                    f"\033[4;34m欧赔本联赛匹配结果：{odds['company']}, 胜:{league_pan_result['胜']}, 平:{league_pan_result['平']}, 负:{league_pan_result['负']}\033[0m")
-                if league_pan_result["胜"] > league_pan_result["平"] and league_pan_result["胜"] > league_pan_result["负"]:
-                    league_pan.append("胜")
-                elif league_pan_result["平"] > league_pan_result["胜"] and league_pan_result["平"] > league_pan_result["负"]:
-                    league_pan.append("平")
-                elif league_pan_result["负"] > league_pan_result["胜"] and league_pan_result["负"] > league_pan_result[
-                    "平"]:
-                    league_pan.append("负")
-                else:
-                    league_pan.append("均势")
-    if len(set(whole_pan)) == 1 and len(whole_pan) > 1:
-        print(f"\033[1;32;45m欧赔全网完美匹配！{set(whole_pan)}\033[0m")
-    if len(set(league_pan)) == 1 and len(league_pan) > 1:
-        print(f"\033[1;33;46m欧赔本联赛完美匹配！{set(league_pan)}\033[0m")
+                league_even_count += 1
+    if all_win_count + all_even_count + all_lose_count > 0:
+        result_str = f"欧赔全网盘口:胜={all_win_count},平={all_even_count},负={all_lose_count},"
+        if all_win_count > all_lose_count and all_win_count > all_even_count:
+            result_str += "胜概率最大,为{:.2f}%".format(
+                all_win_count / (all_win_count + all_lose_count + all_even_count) * 100)
+            print(f"\033[1;35m{result_str}\033[0m")
+        elif all_even_count > all_lose_count and all_even_count > all_win_count:
+            result_str += "平概率最大,为{:.2f}%".format(
+                all_even_count / (all_win_count + all_lose_count + all_even_count) * 100)
+            print(f"\033[1;32m{result_str}\033[0m")
+        elif all_lose_count > all_even_count and all_lose_count > all_win_count:
+            result_str += "负概率最大,为{:.2f}%".format(
+                all_lose_count / (all_win_count + all_lose_count + all_even_count) * 100)
+            print(f"\033[1;34m{result_str}\033[0m")
+        else:
+            print(result_str)
+    else:
+        print("未匹配到相同赔率相同水位的比赛")
+    if league_win_count + league_even_count + league_lose_count > 0:
+        result_str = f"亚盘本联赛盘口:胜={league_win_count},负={league_lose_count},平={league_even_count},"
+        if league_win_count > league_lose_count and league_win_count > league_even_count:
+            result_str += "赢盘概率最大,为{:.2f}%".format(
+                league_win_count / (league_win_count + league_lose_count + league_even_count) * 100)
+            print(f"\033[1;35m{result_str}\033[0m")
+        elif league_even_count > league_lose_count and league_even_count > league_win_count:
+            result_str += "平概率最大,为{:.2f}%".format(
+                league_even_count / (league_win_count + league_lose_count + league_even_count) * 100)
+            print(f"\033[1;32m{result_str}\033[0m")
+        elif league_lose_count > league_even_count and league_lose_count > league_win_count:
+            result_str += "负概率最大,为{:.2f}%".format(
+                league_lose_count / (league_win_count + league_lose_count + league_even_count) * 100)
+            print(f"\033[1;34m{result_str}\033[0m")
+        else:
+            print(result_str)
+    if len(score_map):
+        new_score_map = {}
+        for key in score_map:
+            key_lst = key.split("_")
+            new_key = key_lst[0]
+            if new_key in new_score_map:
+                new_score_map[new_key] += 1
+            else:
+                new_score_map[new_key] = 1
+        new_score_map = dict(sorted(new_score_map.items(), key=lambda item: item[1], reverse=True))
+        score_str = "比分概率前三分别是："
+        index = 0
+        for key in new_score_map:
+            score_str += f"[{key}]({new_score_map[key]}次)     "
+            index += 1
+            if index >= 3:
+                break
+        print(score_str)
+    match["europe_score_map"] = score_map
     return match
 
 
@@ -751,13 +785,13 @@ def parse_asia(match, url):
                     else:
                         visit_res_status.append("平")
         if home_pan_status.count("输") >= history_count - 2 and home_pan_status[:3].count("赢") <= 0 and (visit_pan_status.count("赢") >= history_count - 2 or visit_pan_status[:2].count("赢") == 2) and match["instant_pan_most"] <= -0.75:
-            print(f"\033[1;30;45m主队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计主队反弹概率极大。\033[0m")
+            print(f"\033[1;30;45m主队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计主队赢球概率极大。\033[0m")
         elif visit_pan_status.count("输") >= history_count - 2 and visit_pan_status[:3].count("赢") <= 0 and (home_pan_status.count("赢") >= history_count - 2 or home_pan_status[:2].count("赢") == 2) and match["instant_pan_most"] >= 0.75:
-            print(f"\033[1;30;45m客队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计客队反弹概率极大。\033[0m")
+            print(f"\033[1;30;45m客队近期状态不佳，却让出{abs(match['instant_pan_most'])}球。预计客队赢球概率极大。\033[0m")
         if home_res_status.count("胜") <= 0 and visit_res_status.count("胜") >= history_count - 3 and match["instant_pan_most"] <= -0.5:
-            print(f"\033[1;30;45m主队近5场未尝一胜，却让出{abs(match['instant_pan_most'])}球。预计主队反弹概率极大。\033[0m")
+            print(f"\033[1;30;45m主队近5场未尝一胜，却让出{abs(match['instant_pan_most'])}球。预计主队赢球概率极大。\033[0m")
         elif visit_res_status.count("胜") <= 0 and home_res_status.count("胜") >= history_count - 3 and match["instant_pan_most"] >= 0.5:
-            print(f"\033[1;30;45m客队近5场未尝一胜，却让出{abs(match['instant_pan_most'])}球。预计客队反弹概率极大。\033[0m")
+            print(f"\033[1;30;45m客队近5场未尝一胜，却让出{abs(match['instant_pan_most'])}球。预计客队赢球概率极大。\033[0m")
     all_win_count = 0
     all_lose_count = 0
     all_run_count = 0
@@ -766,10 +800,12 @@ def parse_asia(match, url):
     league_run_count = 0
     score_map = {}
     team_map = {}
+    goal_team_map = {}
+    result_team_map = {}
     if {"origin_pan_most", "instant_pan_most"}.issubset(match):
         print(f"亚盘初盘让球{match['origin_pan_most']}，即时盘让球{match['instant_pan_most']}")
     for odds in odds_items:
-        if odds["company"] in asia_map: # and "match_filter" in match and match["match_filter"] is not None:
+        if odds["company"] in asia_map:
             company_value = asia_map[odds["company"]]
             query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_{company_value}, id from football_500 where origin_pan_{company_value} = {odds['origin_odds']} and origin_pan_odds_home_{company_value} between {round(odds['origin_odds_home'] - error_odds / 2, 3)} and {round(odds['origin_odds_home'] + error_odds / 2, 3)} and origin_pan_odds_visit_{company_value} between {round(odds['origin_odds_visit'] - error_odds / 2, 3)} and {round(odds['origin_odds_visit'] + error_odds / 2, 3)} and instant_pan_{company_value} = {odds['instant_odds']} "
             if odds["instant_odds_home_state"] == "up":
@@ -790,10 +826,10 @@ def parse_asia(match, url):
                 if "home_score" in match and match["home_score"] is not None and "visit_score" in match and match["visit_score"] is not None:
                     if match["home_score"] > match["visit_score"]:
                         distance = match["home_score"] - match["visit_score"]
-                        query_sql += f" and home_score - visit_score >= {distance - 4}"
+                        query_sql += f" and home_score - visit_score >= {distance}"
                     else:
                         distance = match["visit_score"] - match["home_score"]
-                        query_sql += f" and visit_score - home_score >= {distance - 4}"
+                        query_sql += f" and visit_score - home_score >= {distance}"
             # query_sql += f" and match_group regexp '{match['match_filter']}';"
             # print(query_sql)
             cursor.execute(query_sql)
@@ -838,11 +874,22 @@ def parse_asia(match, url):
             else:
                 league_run_count += 1
         match_id = key.split("_")[-1]
-        # if match_id:
-        #     cursor.execute(f"SELECT home_recent_pre_goal, home_recent_pre_miss FROM football_extra WHERE match_id='{match_id}'")
-        #     extra_result = cursor.fetchone()
-        #     if extra_result:
-        #         print(extra_result)
+        if match_id:
+            cursor.execute(f"SELECT home_recent_pre_goal, home_recent_pre_miss, visit_recent_pre_goal, visit_recent_pre_miss, home_recent_result, visit_recent_result FROM football_extra WHERE match_id='{match_id}'")
+            extra_result = cursor.fetchone()
+            if extra_result and extra_result[0] and extra_result[1] and extra_result[2] and extra_result[3] and extra_result[4] and extra_result[5]:
+                if match["home_goal"] >= match["visit_goal"] and match["home_miss"] <= match["visit_miss"] and extra_result[0] >= extra_result[2] and extra_result[1] <= extra_result[3]:
+                    goal_team_map[key] = team_map[key]
+                elif match["home_goal"] < match["visit_goal"] and match["home_miss"] > match["visit_miss"] and extra_result[0] < extra_result[2] and extra_result[1] > extra_result[3]:
+                    goal_team_map[key] = team_map[key]
+                elif match["home_goal"] >= match["visit_goal"] and match["home_miss"] > match["visit_miss"] and extra_result[0] >= extra_result[2] and extra_result[1] > extra_result[3]:
+                    goal_team_map[key] = team_map[key]
+                elif match["home_goal"] < match["visit_goal"] and match["home_miss"] <= match["visit_miss"] and extra_result[0] < extra_result[2] and extra_result[1] <= extra_result[3]:
+                    goal_team_map[key] = team_map[key]
+                if match["home_result"].count("胜") == extra_result[4].count("胜") and match["visit_result"].count("胜") == extra_result[5].count("胜"):
+                    result_team_map[key] = team_map[key]
+    # print(goal_team_map)
+    # print(result_team_map)
     if all_win_count + all_run_count + all_lose_count > 0:
         result_str = f"亚盘全网盘口:赢={all_win_count},输={all_lose_count},走={all_run_count},"
         if all_win_count > all_lose_count and all_win_count > all_run_count:
@@ -896,6 +943,12 @@ def parse_asia(match, url):
             if index >= 3:
                 break
         print(score_str)
+    match["asia_score_map"] = score_map
+    for key1 in match["asia_score_map"]:
+        last_underscore_index = key1.rfind('_')
+        key1 = key1[:last_underscore_index]
+        if key1 in match["europe_score_map"]:
+            print(f"\033[0;32;40m欧赔和亚盘同时命中比赛：{key1}\033[0m")
     return match
 
 
@@ -1177,8 +1230,8 @@ def analyse_match():
         if "match_category" in match_item and match_item["match_category"] in match_map["group_inaccuracy"]:
             print("************************************不准确的联赛************************************")
             # continue
-        # match_item = parse_europe(match_item, detail_url.replace("shuju", "ouzhi"))
-        # time.sleep(3)
+        match_item = parse_europe(match_item, detail_url.replace("shuju", "ouzhi"))
+        time.sleep(3)
         match_item = parse_asia(match_item, detail_url.replace("shuju", "yazhi"))
         time.sleep(3)
         match_item = parse_size(match_item, detail_url.replace("shuju", "daxiao"))
@@ -1194,7 +1247,7 @@ def analyse_detail(detail_url):
     else:
         print(f"\033[1;31m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。\033[0m")
     # match_item = parse_europe(match_item, detail_url.replace("shuju", "ouzhi"))
-    match_item = parse_asia(match_item, detail_url.replace("shuju", "yazhi"))
+    # match_item = parse_asia(match_item, detail_url.replace("shuju", "yazhi"))
     match_item = parse_size(match_item, detail_url.replace("shuju", "daxiao"))
     db.close()
 
@@ -1208,3 +1261,4 @@ if __name__ == '__main__':
 # 墨尔本骑士 https://odds.500.com/fenxi/shuju-1075552.shtml
 # 切尔西多特 https://odds.500.com/fenxi/shuju-1070059.shtml
 # 哥德堡盖斯 https://odds.500.com/fenxi/shuju-1084114.shtml
+# 阿甲飓风 https://odds.500.com/fenxi/shuju-1073177.shtml
