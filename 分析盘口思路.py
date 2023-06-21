@@ -873,21 +873,22 @@ def parse_asia(match, url):
                 league_lose_count += 1
             else:
                 league_run_count += 1
-        match_id = key.split("_")[-1]
-        if match_id:
-            cursor.execute(f"SELECT home_recent_pre_goal, home_recent_pre_miss, visit_recent_pre_goal, visit_recent_pre_miss, home_recent_result, visit_recent_result FROM football_extra WHERE match_id='{match_id}'")
-            extra_result = cursor.fetchone()
-            if extra_result and extra_result[0] and extra_result[1] and extra_result[2] and extra_result[3] and extra_result[4] and extra_result[5]:
-                if match["home_goal"] >= match["visit_goal"] and match["home_miss"] <= match["visit_miss"] and extra_result[0] >= extra_result[2] and extra_result[1] <= extra_result[3]:
-                    goal_team_map[key] = team_map[key]
-                elif match["home_goal"] < match["visit_goal"] and match["home_miss"] > match["visit_miss"] and extra_result[0] < extra_result[2] and extra_result[1] > extra_result[3]:
-                    goal_team_map[key] = team_map[key]
-                elif match["home_goal"] >= match["visit_goal"] and match["home_miss"] > match["visit_miss"] and extra_result[0] >= extra_result[2] and extra_result[1] > extra_result[3]:
-                    goal_team_map[key] = team_map[key]
-                elif match["home_goal"] < match["visit_goal"] and match["home_miss"] <= match["visit_miss"] and extra_result[0] < extra_result[2] and extra_result[1] <= extra_result[3]:
-                    goal_team_map[key] = team_map[key]
-                if match["home_result"].count("胜") == extra_result[4].count("胜") and match["visit_result"].count("胜") == extra_result[5].count("胜"):
-                    result_team_map[key] = team_map[key]
+        if {"home_goal", "visit_goal", "home_miss", "visit_miss", "home_result", "visit_result"}.issubset(match.keys()):
+            match_id = key.split("_")[-1]
+            if match_id:
+                cursor.execute(f"SELECT home_recent_pre_goal, home_recent_pre_miss, visit_recent_pre_goal, visit_recent_pre_miss, home_recent_result, visit_recent_result FROM football_extra WHERE match_id='{match_id}'")
+                extra_result = cursor.fetchone()
+                if extra_result and extra_result[0] and extra_result[1] and extra_result[2] and extra_result[3] and extra_result[4] and extra_result[5]:
+                    if match["home_goal"] >= match["visit_goal"] and match["home_miss"] <= match["visit_miss"] and extra_result[0] >= extra_result[2] and extra_result[1] <= extra_result[3]:
+                        goal_team_map[key] = team_map[key]
+                    elif match["home_goal"] < match["visit_goal"] and match["home_miss"] > match["visit_miss"] and extra_result[0] < extra_result[2] and extra_result[1] > extra_result[3]:
+                        goal_team_map[key] = team_map[key]
+                    elif match["home_goal"] >= match["visit_goal"] and match["home_miss"] > match["visit_miss"] and extra_result[0] >= extra_result[2] and extra_result[1] > extra_result[3]:
+                        goal_team_map[key] = team_map[key]
+                    elif match["home_goal"] < match["visit_goal"] and match["home_miss"] <= match["visit_miss"] and extra_result[0] < extra_result[2] and extra_result[1] <= extra_result[3]:
+                        goal_team_map[key] = team_map[key]
+                    if match["home_result"].count("胜") == extra_result[4].count("胜") and match["visit_result"].count("胜") == extra_result[5].count("胜"):
+                        result_team_map[key] = team_map[key]
     # print(goal_team_map)
     # print(result_team_map)
     if all_win_count + all_run_count + all_lose_count > 0:
