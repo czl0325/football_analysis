@@ -491,7 +491,7 @@ def parse_europe(match, url):
         else:
             print(result_str)
     else:
-        print("亚盘未匹配到相同赔率相同水位的比赛")
+        print("欧赔未匹配到相同赔率相同水位的比赛")
     if league_win_count + league_even_count + league_lose_count > 0:
         result_str = f"亚盘本联赛盘口:胜={league_win_count},负={league_lose_count},平={league_even_count},"
         if league_win_count > league_lose_count and league_win_count > league_even_count:
