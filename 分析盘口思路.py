@@ -205,27 +205,27 @@ def parse_fundamentals(match, url):
                 if home_count < 6:
                     home_goal += score_lst[0]
                     home_miss += score_lst[1]
-                    home_result += res[3]
-                    home_pan += res[4]
+                    home_result += res[3] if res[3] else "无"
+                    home_pan += res[4] if res[4] else "无"
                     home_count += 1
                 if home_home_count < 4:
                     home_home_goal += score_lst[0]
                     home_home_miss = score_lst[1]
-                    home_home_result += res[3]
-                    home_home_pan += res[4]
+                    home_home_result += res[3] if res[3] else "无"
+                    home_home_pan += res[4] if res[4] else "无"
                     home_home_count += 1
             elif res[1] == match["home_team"]:
                 if home_count < 6:
                     home_goal += score_lst[1]
                     home_miss += score_lst[0]
-                    home_result += change_visit_result(res[3])
-                    home_pan += change_visit_pan(res[4])
+                    home_result += change_visit_result(res[3]) if res[3] else "无"
+                    home_pan += change_visit_pan(res[4]) if res[4] else "无"
                     home_count += 1
                 if home_visit_count < 4:
                     home_visit_goal += score_lst[1]
                     home_visit_miss += score_lst[0]
-                    home_visit_result += change_visit_result(res[3])
-                    home_visit_pan += change_visit_pan(res[4])
+                    home_visit_result += change_visit_result(res[3]) if res[3] else "无"
+                    home_visit_pan += change_visit_pan(res[4]) if res[4] else "无"
                     home_visit_count += 1
             if home_count >= 6 and home_home_count >= 4 and home_visit_count >= 4:
                 break
@@ -269,27 +269,27 @@ def parse_fundamentals(match, url):
                 if visit_count < 6:
                     visit_goal += score_lst[0]
                     visit_miss += score_lst[1]
-                    visit_result += res[3]
-                    visit_pan += res[4]
+                    visit_result += res[3] if res[3] else "无"
+                    visit_pan += res[4] if res[4] else "无"
                     visit_count += 1
                 if visit_home_count < 4:
                     visit_home_goal += score_lst[0]
                     visit_home_miss = score_lst[1]
-                    visit_home_result += res[3]
-                    visit_home_pan += res[4]
+                    visit_home_result += res[3] if res[3] else "无"
+                    visit_home_pan += res[4] if res[4] else "无"
                     visit_home_count += 1
             elif res[1] == match["visit_team"]:
                 if visit_count < 6:
                     visit_goal += score_lst[1]
                     visit_miss += score_lst[0]
-                    visit_result += change_visit_result(res[3])
-                    visit_pan += change_visit_pan(res[4])
+                    visit_result += change_visit_result(res[3]) if res[3] else "无"
+                    visit_pan += change_visit_pan(res[4]) if res[4] else "无"
                     visit_count += 1
                 if visit_visit_count < 4:
                     visit_visit_goal += score_lst[1]
                     visit_visit_miss += score_lst[0]
-                    visit_visit_result += change_visit_result(res[3])
-                    visit_visit_pan += change_visit_pan(res[4])
+                    visit_visit_result += change_visit_result(res[3]) if res[3] else "无"
+                    visit_visit_pan += change_visit_pan(res[4]) if res[4] else "无"
                     visit_visit_count += 1
             if visit_count >= 6 and visit_home_count >= 4 and visit_visit_count >= 4:
                 break
