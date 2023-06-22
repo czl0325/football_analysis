@@ -7,6 +7,7 @@ import time
 import datetime
 import scipy.stats as stats
 from decimal import Decimal
+from prettytable import PrettyTable
 
 ###########################################################################
 # match的字段
@@ -32,6 +33,8 @@ from decimal import Decimal
 need_friend = False
 # 水位误差范围
 error_odds = Decimal('0.03')
+# 选择爬取多少小时内的比赛分析
+future_time = 2
 ###########################################################################
 
 
@@ -488,7 +491,7 @@ def parse_europe(match, url):
         else:
             print(result_str)
     else:
-        print("未匹配到相同赔率相同水位的比赛")
+        print("亚盘未匹配到相同赔率相同水位的比赛")
     if league_win_count + league_even_count + league_lose_count > 0:
         result_str = f"亚盘本联赛盘口:胜={league_win_count},负={league_lose_count},平={league_even_count},"
         if league_win_count > league_lose_count and league_win_count > league_even_count:
@@ -909,7 +912,7 @@ def parse_asia(match, url):
             print(result_str)
     else:
         if match["match_filter"]:
-            print("未匹配到相同赔率相同水位的比赛")
+            print("欧赔未匹配到相同赔率相同水位的比赛")
     if league_win_count + league_run_count + league_lose_count > 0:
         result_str = f"亚盘本联赛盘口:赢={league_win_count},输={league_lose_count},走={league_run_count},"
         if league_win_count > league_lose_count and league_win_count > league_run_count:
@@ -1017,14 +1020,29 @@ def parse_size(match, url):
                 visit_avg = round(visit_goals / visit_count, 1)
                 home_goal_exception = [round(stats.poisson.pmf(i, home_exception), 4) for i in range(7)]
                 visit_goal_exception = [round(stats.poisson.pmf(i, visit_exception), 4) for i in range(7)]
-                print(f"""{match["home_team"]}主场平均进球{home_avg}，泊松分布计算{home_goal_exception}，{match["visit_team"]}客场平均进球{visit_avg}，泊松分布计算{visit_goal_exception}""")
+                all_goal_exception = [0] * 7
+                for i in range(7):
+                    for j in range(7):
+                        if i + j < 7:
+                            all_goal_exception[i + j] += home_goal_exception[i] * visit_goal_exception[j]
+                print(f"""{match["home_team"]}主场平均进球{home_avg}，{match["visit_team"]}客场平均进球{visit_avg}""")
+                table = PrettyTable()
+                table.align = "c"
+                table.field_names = ["球队概率", "0球", "1球", "2球", "3球", "4球", "5球", "6球"]
+                table.add_rows([
+                    ["主队进球概率"] + [(str(round(x * 100, 2)) + "%") for x in home_goal_exception],
+                    ["客队进球概率"] + [(str(round(x * 100, 2)) + "%") for x in visit_goal_exception],
+                    ["总进球概率"] + [(str(round(x * 100, 2)) + "%") for x in all_goal_exception],
+                ])
+                print(table.get_string(border=False))
                 size_dict = {
-                    0: home_goal_exception[0] * visit_goal_exception[0],
-                    1: home_goal_exception[1] * visit_goal_exception[0] + home_goal_exception[0] * visit_goal_exception[1],
-                    2: home_goal_exception[2] * visit_goal_exception[0] + home_goal_exception[0] * visit_goal_exception[2] + home_goal_exception[1] * visit_goal_exception[1],
-                    3: home_goal_exception[3] * visit_goal_exception[0] + home_goal_exception[0] * visit_goal_exception[3] + home_goal_exception[2] * visit_goal_exception[1] + home_goal_exception[1] * visit_goal_exception[2],
-                    4: home_goal_exception[0] * visit_goal_exception[4] + home_goal_exception[4] * visit_goal_exception[0] + home_goal_exception[3] * visit_goal_exception[1] + home_goal_exception[1] * visit_goal_exception[3] + home_goal_exception[2] * visit_goal_exception[2],
-                    5: home_goal_exception[0] * visit_goal_exception[5] + home_goal_exception[5] * visit_goal_exception[0] + home_goal_exception[4] * visit_goal_exception[1] + home_goal_exception[1] * visit_goal_exception[4] + home_goal_exception[3] * visit_goal_exception[2] + home_goal_exception[2] * visit_goal_exception[3]
+                    0: all_goal_exception[0],
+                    1: all_goal_exception[1],
+                    2: all_goal_exception[2],
+                    3: all_goal_exception[3],
+                    4: all_goal_exception[4],
+                    5: all_goal_exception[5],
+                    6: all_goal_exception[6],
                 }
                 small_probability = size_dict[0]+size_dict[1]+size_dict[2]
                 print(f"泊松分布2.5球小概率={round(small_probability * 100, 2)}%，2.5球大概率={round((1 - small_probability) * 100, 2)}%")
@@ -1202,7 +1220,7 @@ def analyse_match():
         time_diff = time.mktime(match_time) - time.mktime(time.strptime(current_time, "%Y-%m-%d %H:%M"))
         if time_diff < -3600 * 1:
             continue
-        if time_diff > 3600 * 2 and is_start == "未":
+        if time_diff > 3600 * future_time and is_start == "未":
             break
         is_friend = tr.xpath("./td[2]/a/text()")
         if len(is_friend) <= 0:
@@ -1247,8 +1265,8 @@ def analyse_detail(detail_url):
         print(f"\033[1;32m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。已结束比分: {match_item['field_score']}\033[0m")
     else:
         print(f"\033[1;31m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。\033[0m")
-    # match_item = parse_europe(match_item, detail_url.replace("shuju", "ouzhi"))
-    # match_item = parse_asia(match_item, detail_url.replace("shuju", "yazhi"))
+    match_item = parse_europe(match_item, detail_url.replace("shuju", "ouzhi"))
+    match_item = parse_asia(match_item, detail_url.replace("shuju", "yazhi"))
     match_item = parse_size(match_item, detail_url.replace("shuju", "daxiao"))
     db.close()
 
