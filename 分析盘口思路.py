@@ -85,7 +85,7 @@ asia_map = {
 match_map = {
     "group": [
         # 欧洲
-        "英超", "英冠", "英甲", "英乙", "英足总杯", "西甲", "西乙", "西丙1", "西丙2", "西丙3", "西丙4", "西协甲", "西班牙杯", "意甲", "意乙", "意丙1A", "意丙1B", "意丙1C", "意青联", "意超杯", "意杯", "法甲", "法乙", "法丙", "法国杯", "德甲", "德乙", "德丙联", "德东北", "德国杯", "荷甲", "荷乙", "荷杯", "葡超", "葡甲", "葡联杯", "比甲", "比乙", "比杯", "瑞典超", "瑞典甲", "瑞典杯", "丹超", "丹甲", "丹麦杯", "瑞士超", "瑞士甲", "瑞士杯", "克罗甲", "克罗杯", "塞甲联", "波甲", "波乙", "波兰杯", "苏超", "苏冠", "苏甲", "土超", "土甲", "罗甲", "罗杯", "保超", "挪超", "挪甲", "挪威杯", "爱超", "爱甲", "黑山甲", "阿巴超", "捷甲", "捷克乙", "捷克杯", "波黑超", "斯洛文甲", "冰岛超", "希腊超A", "奥甲", "奥乙", "芬超", "俄超", "塞浦甲", "以超", "北爱超", "乌超",
+        "英超", "英冠", "英甲", "英乙", "英足总杯", "西甲", "西乙", "西丙1", "西丙2", "西丙3", "西丙4", "西协甲", "西班牙杯", "意甲", "意乙", "意丙1A", "意丙1B", "意丙1C", "意青联", "意超杯", "意杯", "法甲", "法乙", "法丙", "法国杯", "德甲", "德乙", "德丙联", "德东北", "德国杯", "荷甲", "荷乙", "荷杯", "葡超", "葡甲", "葡联杯", "比甲", "比乙", "比杯", "瑞典超", "瑞典甲", "瑞典杯", "丹超", "丹甲", "丹麦杯", "瑞士超", "瑞士甲", "瑞士杯", "克罗甲", "克罗杯", "塞甲联", "波甲", "波乙", "波兰杯", "苏超", "苏冠", "苏甲", "土超", "土甲", "罗甲", "罗杯", "保超", "挪超", "挪甲", "挪威杯", "爱超", "爱甲", "黑山甲", "阿巴超", "捷甲", "捷克乙", "捷克杯", "波黑超", "斯洛文甲", "冰岛超", "希腊超A", "奥甲", "奥乙", "芬超", "俄超", "塞浦甲", "以超", "北爱超", "乌超", "亚美超",
         # 欧洲赛事  
         "欧冠", "欧罗巴", "欧会杯",
         # 南美洲
@@ -99,7 +99,7 @@ match_map = {
         # 非洲
         "埃及甲", "摩洛超", "阿尔及甲", "突尼斯甲", "南非超", "尼日超",
         # 世界赛事
-        "非洲杯", "欧洲杯", "世青赛", "世界杯", "土伦杯"],
+        "非洲杯", "欧洲杯", "世青赛", "世界杯", "土伦杯", "欧青赛"],
     # 不准确的联赛放下面来 ！！！！
     "group_inaccuracy": []
     # "group_inaccuracy": ["乌超", "葡甲", "比甲", "土超", "法丙"]
@@ -912,7 +912,7 @@ def parse_asia(match, url):
             print(result_str)
     else:
         if match["match_filter"]:
-            print("欧赔未匹配到相同赔率相同水位的比赛")
+            print("亚盘未匹配到相同赔率相同水位的比赛")
     if league_win_count + league_run_count + league_lose_count > 0:
         result_str = f"亚盘本联赛盘口:赢={league_win_count},输={league_lose_count},走={league_run_count},"
         if league_win_count > league_lose_count and league_win_count > league_run_count:
@@ -1226,7 +1226,7 @@ def analyse_match():
         if len(is_friend) <= 0:
             continue
         is_friend = is_friend[0]
-        if "友谊" in is_friend and need_friend == False:
+        if "友谊" in is_friend and need_friend is False:
             continue
         # if is_friend != "英超" or is_friend != "意甲":
         #     continue
@@ -1245,16 +1245,16 @@ def analyse_match():
         if "field_score" in match_item:
             print(f"\033[1;32m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。已结束比分: {match_item['field_score']}\033[0m")
         else:
-            print(f"\033[1;31m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。\033[0m")
+            print(f"\033[1;31m{match_item['match_group']}, 主队:{match_item['home_team']}{('(排名：' + str(match_item['home_team_rank']) + '、积分：' + str(match_item['home_score']) + ')') if match_item['home_team_rank'] else ''}, 客队:{match_item['visit_team']}{('(排名：' + str(match_item['visit_team_rank']) + '、积分：' + str(match_item['visit_score']) + ')') if match_item['visit_team_rank'] else ''}, 比赛时间:{match_item['match_time']}。\033[0m")
         if "match_category" in match_item and match_item["match_category"] in match_map["group_inaccuracy"]:
             print("************************************不准确的联赛************************************")
             # continue
         match_item = parse_europe(match_item, detail_url.replace("shuju", "ouzhi"))
-        time.sleep(3)
+        # time.sleep(3)
         match_item = parse_asia(match_item, detail_url.replace("shuju", "yazhi"))
-        time.sleep(3)
+        # time.sleep(3)
         match_item = parse_size(match_item, detail_url.replace("shuju", "daxiao"))
-        time.sleep(3)
+        # time.sleep(3)
     db.close()
 
 
