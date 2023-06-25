@@ -8,6 +8,7 @@ import datetime
 import scipy.stats as stats
 from decimal import Decimal
 from prettytable import PrettyTable
+from prettytable.colortable import ColorTable, Themes
 
 ###########################################################################
 # match的字段
@@ -31,8 +32,10 @@ from prettytable import PrettyTable
 ###########################################################################
 # 是否要对比友谊赛
 need_friend = False
-# 水位误差范围
-error_odds = Decimal('0.03')
+# 欧赔水位误差范围
+europe_error_odds = Decimal('0.04')
+# 亚盘水位误差范围
+asia_error_odds = Decimal('0.03')
 # 选择爬取多少小时内的比赛分析
 future_time = 2
 ###########################################################################
@@ -401,28 +404,18 @@ def parse_europe(match, url):
     for odds in europe_odds:
         if odds["company"] in europe_map:
             company_value = europe_map[odds["company"]]
-            origin_win_up = odds["origin_win_odds"] if odds["instant_win_odds"] > odds["origin_win_odds"] else (odds["origin_win_odds"] + error_odds)
-            origin_win_down = (odds["origin_win_odds"] - error_odds) if odds["instant_win_odds"] > odds[
-                "origin_win_odds"] else odds["origin_win_odds"]
-            origin_even_up = odds["origin_even_odds"] if odds["instant_even_odds"] > odds["origin_even_odds"] else (odds["origin_even_odds"] + error_odds)
-            origin_even_down = (odds["origin_even_odds"] - error_odds) if odds["instant_even_odds"] > odds[
-                "origin_even_odds"] else odds["origin_even_odds"]
-            origin_lose_up = odds["origin_lose_odds"] if odds["instant_lose_odds"] > odds["origin_lose_odds"] else (
-                    odds["origin_lose_odds"] + error_odds)
-            origin_lose_down = (odds["origin_lose_odds"] - error_odds) if odds["instant_lose_odds"] > odds[
-                "origin_lose_odds"] else odds["origin_lose_odds"]
-            instant_win_up = (odds["instant_win_odds"] + error_odds) if odds["instant_win_odds"] > odds[
-                "origin_win_odds"] else odds["instant_win_odds"]
-            instant_win_down = odds["instant_win_odds"] if odds["instant_win_odds"] > odds[
-                "origin_win_odds"] else (odds["instant_win_odds"] - error_odds)
-            instant_even_up = (odds["instant_even_odds"] + error_odds) if odds["instant_even_odds"] > odds[
-                "origin_even_odds"] else odds["instant_even_odds"]
-            instant_even_down = odds["instant_even_odds"] if odds["instant_even_odds"] > odds[
-                "origin_even_odds"] else (odds["instant_even_odds"] - error_odds)
-            instant_lose_up = (odds["instant_lose_odds"] + error_odds) if odds["instant_lose_odds"] > odds[
-                "origin_lose_odds"] else odds["instant_lose_odds"]
-            instant_lose_down = odds["instant_lose_odds"] if odds["instant_lose_odds"] > odds[
-                "origin_lose_odds"] else (odds["instant_lose_odds"] - error_odds)
+            origin_win_up = odds["origin_win_odds"] + europe_error_odds / 2 # odds["origin_win_odds"] if odds["instant_win_odds"] > odds["origin_win_odds"] else (odds["origin_win_odds"] + europe_error_odds)
+            origin_win_down = odds["origin_win_odds"] - europe_error_odds / 2 # (odds["origin_win_odds"] - europe_error_odds) if odds["instant_win_odds"] > odds["origin_win_odds"] else odds["origin_win_odds"]
+            origin_even_up = odds["origin_even_odds"] + europe_error_odds / 2 # odds["origin_even_odds"] if odds["instant_even_odds"] > odds["origin_even_odds"] else (odds["origin_even_odds"] + europe_error_odds)
+            origin_even_down = odds["origin_even_odds"] - europe_error_odds / 2 # (odds["origin_even_odds"] - europe_error_odds) if odds["instant_even_odds"] > odds["origin_even_odds"] else odds["origin_even_odds"]
+            origin_lose_up = odds["origin_lose_odds"] + europe_error_odds / 2 # odds["origin_lose_odds"] if odds["instant_lose_odds"] > odds["origin_lose_odds"] else (odds["origin_lose_odds"] + europe_error_odds)
+            origin_lose_down = odds["origin_lose_odds"] - europe_error_odds / 2 # (odds["origin_lose_odds"] - error_odds) if odds["instant_lose_odds"] > odds["origin_lose_odds"] else odds["origin_lose_odds"]
+            instant_win_up = odds["instant_win_odds"] + europe_error_odds / 2 # (odds["instant_win_odds"] + error_odds) if odds["instant_win_odds"] > odds["origin_win_odds"] else odds["instant_win_odds"]
+            instant_win_down = odds["instant_win_odds"] - europe_error_odds / 2 # odds["instant_win_odds"] if odds["instant_win_odds"] > odds["origin_win_odds"] else (odds["instant_win_odds"] - error_odds)
+            instant_even_up = odds["instant_even_odds"] + europe_error_odds / 2 # (odds["instant_even_odds"] + error_odds) if odds["instant_even_odds"] > odds["origin_even_odds"] else odds["instant_even_odds"]
+            instant_even_down = odds["instant_even_odds"] - europe_error_odds / 2 # odds["instant_even_odds"] if odds["instant_even_odds"] > odds["origin_even_odds"] else (odds["instant_even_odds"] - error_odds)
+            instant_lose_up = odds["instant_lose_odds"] + europe_error_odds / 2 # (odds["instant_lose_odds"] + error_odds) if odds["instant_lose_odds"] > odds["origin_lose_odds"] else odds["instant_lose_odds"]
+            instant_lose_down = odds["instant_lose_odds"] - europe_error_odds / 2 # odds["instant_lose_odds"] if odds["instant_lose_odds"] > odds["origin_lose_odds"] else (odds["instant_lose_odds"] - error_odds)
             query_sql = f"select match_group, home_team_full, visit_team_full, field_score from football_500 where origin_win_odds_{company_value} between {origin_win_down} and {origin_win_up} and origin_even_odds_{company_value} between {origin_even_down} and {origin_even_up} and origin_lose_odds_{company_value} between {origin_lose_down} and {origin_lose_up} and instant_win_odds_{company_value} between {instant_win_down} and {instant_win_up} and instant_even_odds_{company_value} between {instant_even_down} and {instant_even_up} and instant_lose_odds_{company_value} between {instant_lose_down} and {instant_lose_up} "
             if "team_count" in match and match["team_count"] > 0 and match["match_round"] > match["team_count"] / 2:
                 if match["home_team_rank"] and match["visit_team_rank"]:
@@ -493,7 +486,7 @@ def parse_europe(match, url):
     else:
         print("欧赔未匹配到相同赔率相同水位的比赛")
     if league_win_count + league_even_count + league_lose_count > 0:
-        result_str = f"亚盘本联赛盘口:胜={league_win_count},负={league_lose_count},平={league_even_count},"
+        result_str = f"欧赔本联赛盘口:胜={league_win_count},平={league_even_count},负={league_lose_count},"
         if league_win_count > league_lose_count and league_win_count > league_even_count:
             result_str += "赢盘概率最大,为{:.2f}%".format(
                 league_win_count / (league_win_count + league_lose_count + league_even_count) * 100)
@@ -810,19 +803,19 @@ def parse_asia(match, url):
     for odds in odds_items:
         if odds["company"] in asia_map:
             company_value = asia_map[odds["company"]]
-            query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_{company_value}, id from football_500 where origin_pan_{company_value} = {odds['origin_odds']} and origin_pan_odds_home_{company_value} between {round(odds['origin_odds_home'] - error_odds / 2, 3)} and {round(odds['origin_odds_home'] + error_odds / 2, 3)} and origin_pan_odds_visit_{company_value} between {round(odds['origin_odds_visit'] - error_odds / 2, 3)} and {round(odds['origin_odds_visit'] + error_odds / 2, 3)} and instant_pan_{company_value} = {odds['instant_odds']} "
+            query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_{company_value}, id from football_500 where origin_pan_{company_value} = {odds['origin_odds']} and origin_pan_odds_home_{company_value} between {round(odds['origin_odds_home'] - asia_error_odds / 2, 3)} and {round(odds['origin_odds_home'] + asia_error_odds / 2, 3)} and origin_pan_odds_visit_{company_value} between {round(odds['origin_odds_visit'] - asia_error_odds / 2, 3)} and {round(odds['origin_odds_visit'] + asia_error_odds / 2, 3)} and instant_pan_{company_value} = {odds['instant_odds']} "
             if odds["instant_odds_home_state"] == "up":
-                query_sql += f" and instant_pan_odds_home_{company_value} between {odds['instant_odds_home']} and {round(odds['instant_odds_home'] + error_odds, 3)}"
+                query_sql += f" and instant_pan_odds_home_{company_value} between {odds['instant_odds_home']} and {round(odds['instant_odds_home'] + asia_error_odds, 3)}"
             elif odds["instant_odds_home_state"] == "down":
-                query_sql += f" and instant_pan_odds_home_{company_value} between {round(odds['instant_odds_home'] - error_odds, 3)} and {odds['instant_odds_home']}"
+                query_sql += f" and instant_pan_odds_home_{company_value} between {round(odds['instant_odds_home'] - asia_error_odds, 3)} and {odds['instant_odds_home']}"
             else:
-                query_sql += f" and instant_pan_odds_home_{company_value} between {round(odds['instant_odds_home'] - error_odds / 2, 3)} and {round(odds['instant_odds_home'] + error_odds / 2, 3)}"
+                query_sql += f" and instant_pan_odds_home_{company_value} between {round(odds['instant_odds_home'] - asia_error_odds / 2, 3)} and {round(odds['instant_odds_home'] + asia_error_odds / 2, 3)}"
             if odds["instant_odds_visit_state"] == "up":
-                query_sql += f" and instant_pan_odds_visit_{company_value} between {odds['instant_odds_visit']} and {round(odds['instant_odds_visit'] + error_odds, 3)}"
+                query_sql += f" and instant_pan_odds_visit_{company_value} between {odds['instant_odds_visit']} and {round(odds['instant_odds_visit'] + asia_error_odds, 3)}"
             elif odds["instant_odds_visit_state"] == "down":
-                query_sql += f" and instant_pan_odds_visit_{company_value} between {round(odds['instant_odds_visit'] - error_odds, 3)} and {odds['instant_odds_visit']}"
+                query_sql += f" and instant_pan_odds_visit_{company_value} between {round(odds['instant_odds_visit'] - asia_error_odds, 3)} and {odds['instant_odds_visit']}"
             else:
-                query_sql += f" and instant_pan_odds_visit_{company_value} between {round(odds['instant_odds_visit'] - error_odds / 2, 3)} and {round(odds['instant_odds_visit'] + error_odds / 2, 3)}"
+                query_sql += f" and instant_pan_odds_visit_{company_value} between {round(odds['instant_odds_visit'] - asia_error_odds / 2, 3)} and {round(odds['instant_odds_visit'] + asia_error_odds / 2, 3)}"
             if "team_count" in match and match["team_count"] > 0 and match["match_round"] > match["team_count"] / 4:
                 if match["home_team_rank"] and match["visit_team_rank"]:
                     query_sql += f" and home_team_rank {'<' if match['home_team_rank'] < match['visit_team_rank'] else '>'} visit_team_rank"
@@ -862,6 +855,8 @@ def parse_asia(match, url):
                     score_map[score_hash] += 1
                 else:
                     score_map[score_hash] = 1
+    # print(team_map)
+    # print(score_map)
     for key in team_map:
         if team_map[key] == "赢":
             all_win_count += 1
@@ -1093,19 +1088,19 @@ def parse_size(match, url):
                 elif "↓" in instant_size_odds_visit:
                     instant_size_odds_visit_state = "down"
                 instant_size_odds_visit = Decimal(re.sub(r"[^(\d+|\.)]", "", instant_size_odds_visit))
-                query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_size_{company_value} from football_500 where origin_size_{company_value} = {origin_size} and origin_size_odds_home_{company_value} between {origin_size_odds_home - error_odds / 2} and {origin_size_odds_home + error_odds / 2} and origin_size_odds_visit_{company_value} between {origin_size_odds_visit - error_odds / 2} and {origin_size_odds_visit + error_odds / 2} and instant_size_{company_value} = {instant_size}"
+                query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_size_{company_value} from football_500 where origin_size_{company_value} = {origin_size} and origin_size_odds_home_{company_value} between {origin_size_odds_home - asia_error_odds / 2} and {origin_size_odds_home + asia_error_odds / 2} and origin_size_odds_visit_{company_value} between {origin_size_odds_visit - asia_error_odds / 2} and {origin_size_odds_visit + asia_error_odds / 2} and instant_size_{company_value} = {instant_size}"
                 if instant_size_odds_home_state == "up":
-                    query_sql += f" and instant_pan_odds_home_{company_value} between {instant_size_odds_home} and {round(instant_size_odds_home + error_odds, 3)}"
+                    query_sql += f" and instant_pan_odds_home_{company_value} between {instant_size_odds_home} and {round(instant_size_odds_home + asia_error_odds, 3)}"
                 elif instant_size_odds_home_state == "down":
-                    query_sql += f" and instant_pan_odds_home_{company_value} between {round(instant_size_odds_home - error_odds, 3)} and {instant_size_odds_home}"
+                    query_sql += f" and instant_pan_odds_home_{company_value} between {round(instant_size_odds_home - asia_error_odds, 3)} and {instant_size_odds_home}"
                 else:
-                    query_sql += f" and instant_pan_odds_home_{company_value} between {round(instant_size_odds_home - error_odds / 2, 3)} and {round(instant_size_odds_home + error_odds / 2, 3)}"
+                    query_sql += f" and instant_pan_odds_home_{company_value} between {round(instant_size_odds_home - asia_error_odds / 2, 3)} and {round(instant_size_odds_home + asia_error_odds / 2, 3)}"
                 if instant_size_odds_visit_state == "up":
-                    query_sql += f" and instant_pan_odds_visit_{company_value} between {instant_size_odds_visit} and {round(instant_size_odds_visit + error_odds, 3)}"
+                    query_sql += f" and instant_pan_odds_visit_{company_value} between {instant_size_odds_visit} and {round(instant_size_odds_visit + asia_error_odds, 3)}"
                 elif instant_size_odds_visit_state == "down":
-                    query_sql += f" and instant_pan_odds_visit_{company_value} between {round(instant_size_odds_visit - error_odds, 3)} and {instant_size_odds_visit}"
+                    query_sql += f" and instant_pan_odds_visit_{company_value} between {round(instant_size_odds_visit - asia_error_odds, 3)} and {instant_size_odds_visit}"
                 else:
-                    query_sql += f" and instant_pan_odds_visit_{company_value} between {round(instant_size_odds_visit - error_odds / 2, 3)} and {round(instant_size_odds_visit + error_odds / 2, 3)}"
+                    query_sql += f" and instant_pan_odds_visit_{company_value} between {round(instant_size_odds_visit - asia_error_odds / 2, 3)} and {round(instant_size_odds_visit + asia_error_odds / 2, 3)}"
                 if "team_count" in match and match["team_count"] > 0 and match["match_round"] > match["team_count"] / 4:
                     if match["home_team_rank"] and match["visit_team_rank"]:
                         query_sql += f" and home_team_rank {'<' if match['home_team_rank'] < match['visit_team_rank'] else '>'} visit_team_rank"
@@ -1164,8 +1159,8 @@ def parse_size(match, url):
                             "visit_count"]) <= 0.1:
                         visit_closed.append(team)
             if len(visit_closed) > 0:
-                print(f"与客队相近球队:{visit_closed}")
-                print("对比主队与相似队伍战绩:")
+                visit_closed_str = f"与客队相近球队:{visit_closed}\n"
+                visit_closed_str += "对比主队与相似队伍战绩:\n"
                 for team in visit_closed:
                     cursor.execute(
                         f"""select field_score from football_500 where home_team_full = '{match["home_team"]}' and visit_team_full = '{team}' and match_group regexp '{match["match_type"]}'""")
@@ -1173,10 +1168,11 @@ def parse_size(match, url):
                     if len(result1) > 0:
                         for res in result1:
                             score_lst = res[0].split(":")
-                            print(f"{match['home_team']}vs{team}：比分{score_lst[0]}:{score_lst[1]}")
+                            visit_closed_str += f"{match['home_team']}vs{team}：比分{score_lst[0]}:{score_lst[1]}\n"
+                        print(visit_closed_str)
             if len(home_closed) > 0:
-                print(f"与主队相近球队:{home_closed}")
-                print("对比客队与相似队伍战绩:")
+                home_closed_str = f"与主队相近球队:{home_closed}\n"
+                home_closed_str += "对比客队与相似队伍战绩:\n"
                 for team in home_closed:
                     cursor.execute(
                         f"""select field_score from football_500 where home_team_full = '{team}' and visit_team_full = '{match["visit_team"]}' and match_group regexp '{match["match_type"]}'""")
@@ -1184,7 +1180,8 @@ def parse_size(match, url):
                     if len(result1) > 0:
                         for res in result1:
                             score_lst = res[0].split(":")
-                            print(f"{team}vs{match['visit_team']}: 比分{score_lst[0]}:{score_lst[1]}")
+                            home_closed_str += f"{team}vs{match['visit_team']}: 比分{score_lst[0]}:{score_lst[1]}\n"
+                        print(home_closed_str)
         except Exception as e:
             print(f"遇到错误={str(e)}, 网址{match['url']}")
     return match
