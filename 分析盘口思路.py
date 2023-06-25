@@ -7,6 +7,7 @@ import time
 import datetime
 import scipy.stats as stats
 from decimal import Decimal
+from prettytable import PrettyTable
 
 ###########################################################################
 # match的字段
@@ -32,6 +33,8 @@ from decimal import Decimal
 need_friend = False
 # 水位误差范围
 error_odds = Decimal('0.03')
+# 选择爬取多少小时内的比赛分析
+future_time = 2
 ###########################################################################
 
 
@@ -82,7 +85,7 @@ asia_map = {
 match_map = {
     "group": [
         # 欧洲
-        "英超", "英冠", "英甲", "英乙", "英足总杯", "西甲", "西乙", "西丙1", "西丙2", "西丙3", "西丙4", "西协甲", "西班牙杯", "意甲", "意乙", "意丙1A", "意丙1B", "意丙1C", "意青联", "意超杯", "意杯", "法甲", "法乙", "法丙", "法国杯", "德甲", "德乙", "德丙联", "德东北", "德国杯", "荷甲", "荷乙", "荷杯", "葡超", "葡甲", "葡联杯", "比甲", "比乙", "比杯", "瑞典超", "瑞典甲", "瑞典杯", "丹超", "丹甲", "丹麦杯", "瑞士超", "瑞士甲", "瑞士杯", "克罗甲", "克罗杯", "塞甲联", "波甲", "波乙", "波兰杯", "苏超", "苏冠", "苏甲", "土超", "土甲", "罗甲", "罗杯", "保超", "挪超", "挪甲", "挪威杯", "爱超", "爱甲", "黑山甲", "阿巴超", "捷甲", "捷克乙", "捷克杯", "波黑超", "斯洛文甲", "冰岛超", "希腊超A", "奥甲", "奥乙", "芬超", "俄超", "塞浦甲", "以超", "北爱超", "乌超",
+        "英超", "英冠", "英甲", "英乙", "英足总杯", "西甲", "西乙", "西丙1", "西丙2", "西丙3", "西丙4", "西协甲", "西班牙杯", "意甲", "意乙", "意丙1A", "意丙1B", "意丙1C", "意青联", "意超杯", "意杯", "法甲", "法乙", "法丙", "法国杯", "德甲", "德乙", "德丙联", "德东北", "德国杯", "荷甲", "荷乙", "荷杯", "葡超", "葡甲", "葡联杯", "比甲", "比乙", "比杯", "瑞典超", "瑞典甲", "瑞典杯", "丹超", "丹甲", "丹麦杯", "瑞士超", "瑞士甲", "瑞士杯", "克罗甲", "克罗杯", "塞甲联", "波甲", "波乙", "波兰杯", "苏超", "苏冠", "苏甲", "土超", "土甲", "罗甲", "罗杯", "保超", "挪超", "挪甲", "挪威杯", "爱超", "爱甲", "黑山甲", "阿巴超", "捷甲", "捷克乙", "捷克杯", "波黑超", "斯洛文甲", "冰岛超", "希腊超A", "奥甲", "奥乙", "芬超", "俄超", "塞浦甲", "以超", "北爱超", "乌超", "亚美超",
         # 欧洲赛事  
         "欧冠", "欧罗巴", "欧会杯",
         # 南美洲
@@ -96,7 +99,7 @@ match_map = {
         # 非洲
         "埃及甲", "摩洛超", "阿尔及甲", "突尼斯甲", "南非超", "尼日超",
         # 世界赛事
-        "非洲杯", "欧洲杯", "世青赛", "世界杯", "土伦杯"],
+        "非洲杯", "欧洲杯", "世青赛", "世界杯", "土伦杯", "欧青赛"],
     # 不准确的联赛放下面来 ！！！！
     "group_inaccuracy": []
     # "group_inaccuracy": ["乌超", "葡甲", "比甲", "土超", "法丙"]
@@ -205,27 +208,27 @@ def parse_fundamentals(match, url):
                 if home_count < 6:
                     home_goal += score_lst[0]
                     home_miss += score_lst[1]
-                    home_result += res[3]
-                    home_pan += res[4]
+                    home_result += res[3] if res[3] else "无"
+                    home_pan += res[4] if res[4] else "无"
                     home_count += 1
                 if home_home_count < 4:
                     home_home_goal += score_lst[0]
                     home_home_miss = score_lst[1]
-                    home_home_result += res[3]
-                    home_home_pan += res[4]
+                    home_home_result += res[3] if res[3] else "无"
+                    home_home_pan += res[4] if res[4] else "无"
                     home_home_count += 1
             elif res[1] == match["home_team"]:
                 if home_count < 6:
                     home_goal += score_lst[1]
                     home_miss += score_lst[0]
-                    home_result += change_visit_result(res[3])
-                    home_pan += change_visit_pan(res[4])
+                    home_result += change_visit_result(res[3]) if res[3] else "无"
+                    home_pan += change_visit_pan(res[4]) if res[4] else "无"
                     home_count += 1
                 if home_visit_count < 4:
                     home_visit_goal += score_lst[1]
                     home_visit_miss += score_lst[0]
-                    home_visit_result += change_visit_result(res[3])
-                    home_visit_pan += change_visit_pan(res[4])
+                    home_visit_result += change_visit_result(res[3]) if res[3] else "无"
+                    home_visit_pan += change_visit_pan(res[4]) if res[4] else "无"
                     home_visit_count += 1
             if home_count >= 6 and home_home_count >= 4 and home_visit_count >= 4:
                 break
@@ -269,27 +272,27 @@ def parse_fundamentals(match, url):
                 if visit_count < 6:
                     visit_goal += score_lst[0]
                     visit_miss += score_lst[1]
-                    visit_result += res[3]
-                    visit_pan += res[4]
+                    visit_result += res[3] if res[3] else "无"
+                    visit_pan += res[4] if res[4] else "无"
                     visit_count += 1
                 if visit_home_count < 4:
                     visit_home_goal += score_lst[0]
                     visit_home_miss = score_lst[1]
-                    visit_home_result += res[3]
-                    visit_home_pan += res[4]
+                    visit_home_result += res[3] if res[3] else "无"
+                    visit_home_pan += res[4] if res[4] else "无"
                     visit_home_count += 1
             elif res[1] == match["visit_team"]:
                 if visit_count < 6:
                     visit_goal += score_lst[1]
                     visit_miss += score_lst[0]
-                    visit_result += change_visit_result(res[3])
-                    visit_pan += change_visit_pan(res[4])
+                    visit_result += change_visit_result(res[3]) if res[3] else "无"
+                    visit_pan += change_visit_pan(res[4]) if res[4] else "无"
                     visit_count += 1
                 if visit_visit_count < 4:
                     visit_visit_goal += score_lst[1]
                     visit_visit_miss += score_lst[0]
-                    visit_visit_result += change_visit_result(res[3])
-                    visit_visit_pan += change_visit_pan(res[4])
+                    visit_visit_result += change_visit_result(res[3]) if res[3] else "无"
+                    visit_visit_pan += change_visit_pan(res[4]) if res[4] else "无"
                     visit_visit_count += 1
             if visit_count >= 6 and visit_home_count >= 4 and visit_visit_count >= 4:
                 break
@@ -488,7 +491,7 @@ def parse_europe(match, url):
         else:
             print(result_str)
     else:
-        print("未匹配到相同赔率相同水位的比赛")
+        print("欧赔未匹配到相同赔率相同水位的比赛")
     if league_win_count + league_even_count + league_lose_count > 0:
         result_str = f"亚盘本联赛盘口:胜={league_win_count},负={league_lose_count},平={league_even_count},"
         if league_win_count > league_lose_count and league_win_count > league_even_count:
@@ -616,7 +619,7 @@ def parse_asia(match, url):
             print(f"\033[1;34;43m查询历史数据，该盘口下胜率为：{result}\033[0m")
     if {"home_team_rank", "visit_team_rank", "home_score", "visit_score", "team_count", "match_round", "instant_pan_most"}.issubset(match.keys()):
         if match["match_round"] >= match["team_count"] / 2 + 1:
-            if abs(match["home_team_rank"] - match["visit_team_rank"]) <= (3 if match["team_count"] > 10 else 1) and abs(match["instant_pan_most"]) >= 1.25:
+            if abs(match["home_team_rank"] - match["visit_team_rank"]) <= (3 if match["team_count"] > 12 else 1) and abs(match["instant_pan_most"]) >= 1.25:
                 print(f"\033[1;30;45m注意：主队排名{match['home_team_rank']}，客队排名{match['visit_team_rank']}，让球{match['instant_pan_most']}偏深，预计{'主队' if match['instant_pan_most'] < 0 else '客队'}会有一场大胜，可以上独赢。\033[0m")
             if match["home_team_rank"] <= match["visit_team_rank"] - match["team_count"] / 2 and match["home_score"] >= match["visit_score"] + 15:
                 if match["instant_pan_most"] >= -0.25:
@@ -873,21 +876,22 @@ def parse_asia(match, url):
                 league_lose_count += 1
             else:
                 league_run_count += 1
-        match_id = key.split("_")[-1]
-        if match_id:
-            cursor.execute(f"SELECT home_recent_pre_goal, home_recent_pre_miss, visit_recent_pre_goal, visit_recent_pre_miss, home_recent_result, visit_recent_result FROM football_extra WHERE match_id='{match_id}'")
-            extra_result = cursor.fetchone()
-            if extra_result and extra_result[0] and extra_result[1] and extra_result[2] and extra_result[3] and extra_result[4] and extra_result[5]:
-                if match["home_goal"] >= match["visit_goal"] and match["home_miss"] <= match["visit_miss"] and extra_result[0] >= extra_result[2] and extra_result[1] <= extra_result[3]:
-                    goal_team_map[key] = team_map[key]
-                elif match["home_goal"] < match["visit_goal"] and match["home_miss"] > match["visit_miss"] and extra_result[0] < extra_result[2] and extra_result[1] > extra_result[3]:
-                    goal_team_map[key] = team_map[key]
-                elif match["home_goal"] >= match["visit_goal"] and match["home_miss"] > match["visit_miss"] and extra_result[0] >= extra_result[2] and extra_result[1] > extra_result[3]:
-                    goal_team_map[key] = team_map[key]
-                elif match["home_goal"] < match["visit_goal"] and match["home_miss"] <= match["visit_miss"] and extra_result[0] < extra_result[2] and extra_result[1] <= extra_result[3]:
-                    goal_team_map[key] = team_map[key]
-                if match["home_result"].count("胜") == extra_result[4].count("胜") and match["visit_result"].count("胜") == extra_result[5].count("胜"):
-                    result_team_map[key] = team_map[key]
+        if {"home_goal", "visit_goal", "home_miss", "visit_miss", "home_result", "visit_result"}.issubset(match.keys()):
+            match_id = key.split("_")[-1]
+            if match_id:
+                cursor.execute(f"SELECT home_recent_pre_goal, home_recent_pre_miss, visit_recent_pre_goal, visit_recent_pre_miss, home_recent_result, visit_recent_result FROM football_extra WHERE match_id='{match_id}'")
+                extra_result = cursor.fetchone()
+                if extra_result and extra_result[0] and extra_result[1] and extra_result[2] and extra_result[3] and extra_result[4] and extra_result[5]:
+                    if match["home_goal"] >= match["visit_goal"] and match["home_miss"] <= match["visit_miss"] and extra_result[0] >= extra_result[2] and extra_result[1] <= extra_result[3]:
+                        goal_team_map[key] = team_map[key]
+                    elif match["home_goal"] < match["visit_goal"] and match["home_miss"] > match["visit_miss"] and extra_result[0] < extra_result[2] and extra_result[1] > extra_result[3]:
+                        goal_team_map[key] = team_map[key]
+                    elif match["home_goal"] >= match["visit_goal"] and match["home_miss"] > match["visit_miss"] and extra_result[0] >= extra_result[2] and extra_result[1] > extra_result[3]:
+                        goal_team_map[key] = team_map[key]
+                    elif match["home_goal"] < match["visit_goal"] and match["home_miss"] <= match["visit_miss"] and extra_result[0] < extra_result[2] and extra_result[1] <= extra_result[3]:
+                        goal_team_map[key] = team_map[key]
+                    if match["home_result"].count("胜") == extra_result[4].count("胜") and match["visit_result"].count("胜") == extra_result[5].count("胜"):
+                        result_team_map[key] = team_map[key]
     # print(goal_team_map)
     # print(result_team_map)
     if all_win_count + all_run_count + all_lose_count > 0:
@@ -908,7 +912,7 @@ def parse_asia(match, url):
             print(result_str)
     else:
         if match["match_filter"]:
-            print("未匹配到相同赔率相同水位的比赛")
+            print("亚盘未匹配到相同赔率相同水位的比赛")
     if league_win_count + league_run_count + league_lose_count > 0:
         result_str = f"亚盘本联赛盘口:赢={league_win_count},输={league_lose_count},走={league_run_count},"
         if league_win_count > league_lose_count and league_win_count > league_run_count:
@@ -1016,14 +1020,29 @@ def parse_size(match, url):
                 visit_avg = round(visit_goals / visit_count, 1)
                 home_goal_exception = [round(stats.poisson.pmf(i, home_exception), 4) for i in range(7)]
                 visit_goal_exception = [round(stats.poisson.pmf(i, visit_exception), 4) for i in range(7)]
-                print(f"""{match["home_team"]}主场平均进球{home_avg}，泊松分布计算{home_goal_exception}，{match["visit_team"]}客场平均进球{visit_avg}，泊松分布计算{visit_goal_exception}""")
+                all_goal_exception = [0] * 7
+                for i in range(7):
+                    for j in range(7):
+                        if i + j < 7:
+                            all_goal_exception[i + j] += home_goal_exception[i] * visit_goal_exception[j]
+                print(f"""{match["home_team"]}主场平均进球{home_avg}，{match["visit_team"]}客场平均进球{visit_avg}""")
+                table = PrettyTable()
+                table.align = "c"
+                table.field_names = ["球队概率", "0球", "1球", "2球", "3球", "4球", "5球", "6球"]
+                table.add_rows([
+                    ["主队进球概率"] + [(str(round(x * 100, 2)) + "%") for x in home_goal_exception],
+                    ["客队进球概率"] + [(str(round(x * 100, 2)) + "%") for x in visit_goal_exception],
+                    ["总进球概率"] + [(str(round(x * 100, 2)) + "%") for x in all_goal_exception],
+                ])
+                print(table.get_string(border=False))
                 size_dict = {
-                    0: home_goal_exception[0] * visit_goal_exception[0],
-                    1: home_goal_exception[1] * visit_goal_exception[0] + home_goal_exception[0] * visit_goal_exception[1],
-                    2: home_goal_exception[2] * visit_goal_exception[0] + home_goal_exception[0] * visit_goal_exception[2] + home_goal_exception[1] * visit_goal_exception[1],
-                    3: home_goal_exception[3] * visit_goal_exception[0] + home_goal_exception[0] * visit_goal_exception[3] + home_goal_exception[2] * visit_goal_exception[1] + home_goal_exception[1] * visit_goal_exception[2],
-                    4: home_goal_exception[0] * visit_goal_exception[4] + home_goal_exception[4] * visit_goal_exception[0] + home_goal_exception[3] * visit_goal_exception[1] + home_goal_exception[1] * visit_goal_exception[3] + home_goal_exception[2] * visit_goal_exception[2],
-                    5: home_goal_exception[0] * visit_goal_exception[5] + home_goal_exception[5] * visit_goal_exception[0] + home_goal_exception[4] * visit_goal_exception[1] + home_goal_exception[1] * visit_goal_exception[4] + home_goal_exception[3] * visit_goal_exception[2] + home_goal_exception[2] * visit_goal_exception[3]
+                    0: all_goal_exception[0],
+                    1: all_goal_exception[1],
+                    2: all_goal_exception[2],
+                    3: all_goal_exception[3],
+                    4: all_goal_exception[4],
+                    5: all_goal_exception[5],
+                    6: all_goal_exception[6],
                 }
                 small_probability = size_dict[0]+size_dict[1]+size_dict[2]
                 print(f"泊松分布2.5球小概率={round(small_probability * 100, 2)}%，2.5球大概率={round((1 - small_probability) * 100, 2)}%")
@@ -1201,13 +1220,13 @@ def analyse_match():
         time_diff = time.mktime(match_time) - time.mktime(time.strptime(current_time, "%Y-%m-%d %H:%M"))
         if time_diff < -3600 * 1:
             continue
-        if time_diff > 3600 * 2 and is_start == "未":
+        if time_diff > 3600 * future_time and is_start == "未":
             break
         is_friend = tr.xpath("./td[2]/a/text()")
         if len(is_friend) <= 0:
             continue
         is_friend = is_friend[0]
-        if "友谊" in is_friend and need_friend == False:
+        if "友谊" in is_friend and need_friend is False:
             continue
         # if is_friend != "英超" or is_friend != "意甲":
         #     continue
@@ -1226,16 +1245,16 @@ def analyse_match():
         if "field_score" in match_item:
             print(f"\033[1;32m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。已结束比分: {match_item['field_score']}\033[0m")
         else:
-            print(f"\033[1;31m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。\033[0m")
+            print(f"\033[1;31m{match_item['match_group']}, 主队:{match_item['home_team']}{('(排名：' + str(match_item['home_team_rank']) + '、积分：' + str(match_item['home_score']) + ')') if match_item['home_team_rank'] else ''}, 客队:{match_item['visit_team']}{('(排名：' + str(match_item['visit_team_rank']) + '、积分：' + str(match_item['visit_score']) + ')') if match_item['visit_team_rank'] else ''}, 比赛时间:{match_item['match_time']}。\033[0m")
         if "match_category" in match_item and match_item["match_category"] in match_map["group_inaccuracy"]:
             print("************************************不准确的联赛************************************")
             # continue
         match_item = parse_europe(match_item, detail_url.replace("shuju", "ouzhi"))
-        time.sleep(3)
+        # time.sleep(3)
         match_item = parse_asia(match_item, detail_url.replace("shuju", "yazhi"))
-        time.sleep(3)
+        # time.sleep(3)
         match_item = parse_size(match_item, detail_url.replace("shuju", "daxiao"))
-        time.sleep(3)
+        # time.sleep(3)
     db.close()
 
 
@@ -1246,8 +1265,8 @@ def analyse_detail(detail_url):
         print(f"\033[1;32m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。已结束比分: {match_item['field_score']}\033[0m")
     else:
         print(f"\033[1;31m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。\033[0m")
-    # match_item = parse_europe(match_item, detail_url.replace("shuju", "ouzhi"))
-    # match_item = parse_asia(match_item, detail_url.replace("shuju", "yazhi"))
+    match_item = parse_europe(match_item, detail_url.replace("shuju", "ouzhi"))
+    match_item = parse_asia(match_item, detail_url.replace("shuju", "yazhi"))
     match_item = parse_size(match_item, detail_url.replace("shuju", "daxiao"))
     db.close()
 
