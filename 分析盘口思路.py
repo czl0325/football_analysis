@@ -404,18 +404,18 @@ def parse_europe(match, url):
     for odds in europe_odds:
         if odds["company"] in europe_map:
             company_value = europe_map[odds["company"]]
-            origin_win_up = odds["origin_win_odds"] + europe_error_odds / 2 # odds["origin_win_odds"] if odds["instant_win_odds"] > odds["origin_win_odds"] else (odds["origin_win_odds"] + europe_error_odds)
-            origin_win_down = odds["origin_win_odds"] - europe_error_odds / 2 # (odds["origin_win_odds"] - europe_error_odds) if odds["instant_win_odds"] > odds["origin_win_odds"] else odds["origin_win_odds"]
-            origin_even_up = odds["origin_even_odds"] + europe_error_odds / 2 # odds["origin_even_odds"] if odds["instant_even_odds"] > odds["origin_even_odds"] else (odds["origin_even_odds"] + europe_error_odds)
-            origin_even_down = odds["origin_even_odds"] - europe_error_odds / 2 # (odds["origin_even_odds"] - europe_error_odds) if odds["instant_even_odds"] > odds["origin_even_odds"] else odds["origin_even_odds"]
-            origin_lose_up = odds["origin_lose_odds"] + europe_error_odds / 2 # odds["origin_lose_odds"] if odds["instant_lose_odds"] > odds["origin_lose_odds"] else (odds["origin_lose_odds"] + europe_error_odds)
-            origin_lose_down = odds["origin_lose_odds"] - europe_error_odds / 2 # (odds["origin_lose_odds"] - error_odds) if odds["instant_lose_odds"] > odds["origin_lose_odds"] else odds["origin_lose_odds"]
-            instant_win_up = odds["instant_win_odds"] + europe_error_odds / 2 # (odds["instant_win_odds"] + error_odds) if odds["instant_win_odds"] > odds["origin_win_odds"] else odds["instant_win_odds"]
-            instant_win_down = odds["instant_win_odds"] - europe_error_odds / 2 # odds["instant_win_odds"] if odds["instant_win_odds"] > odds["origin_win_odds"] else (odds["instant_win_odds"] - error_odds)
-            instant_even_up = odds["instant_even_odds"] + europe_error_odds / 2 # (odds["instant_even_odds"] + error_odds) if odds["instant_even_odds"] > odds["origin_even_odds"] else odds["instant_even_odds"]
-            instant_even_down = odds["instant_even_odds"] - europe_error_odds / 2 # odds["instant_even_odds"] if odds["instant_even_odds"] > odds["origin_even_odds"] else (odds["instant_even_odds"] - error_odds)
-            instant_lose_up = odds["instant_lose_odds"] + europe_error_odds / 2 # (odds["instant_lose_odds"] + error_odds) if odds["instant_lose_odds"] > odds["origin_lose_odds"] else odds["instant_lose_odds"]
-            instant_lose_down = odds["instant_lose_odds"] - europe_error_odds / 2 # odds["instant_lose_odds"] if odds["instant_lose_odds"] > odds["origin_lose_odds"] else (odds["instant_lose_odds"] - error_odds)
+            origin_win_up = odds["origin_win_odds"] + europe_error_odds / 2  # odds["origin_win_odds"] if odds["instant_win_odds"] > odds["origin_win_odds"] else (odds["origin_win_odds"] + europe_error_odds)
+            origin_win_down = odds["origin_win_odds"] - europe_error_odds / 2  # (odds["origin_win_odds"] - europe_error_odds) if odds["instant_win_odds"] > odds["origin_win_odds"] else odds["origin_win_odds"]
+            origin_even_up = odds["origin_even_odds"] + europe_error_odds / 2  # odds["origin_even_odds"] if odds["instant_even_odds"] > odds["origin_even_odds"] else (odds["origin_even_odds"] + europe_error_odds)
+            origin_even_down = odds["origin_even_odds"] - europe_error_odds / 2  # (odds["origin_even_odds"] - europe_error_odds) if odds["instant_even_odds"] > odds["origin_even_odds"] else odds["origin_even_odds"]
+            origin_lose_up = odds["origin_lose_odds"] + europe_error_odds / 2  # odds["origin_lose_odds"] if odds["instant_lose_odds"] > odds["origin_lose_odds"] else (odds["origin_lose_odds"] + europe_error_odds)
+            origin_lose_down = odds["origin_lose_odds"] - europe_error_odds / 2  # (odds["origin_lose_odds"] - error_odds) if odds["instant_lose_odds"] > odds["origin_lose_odds"] else odds["origin_lose_odds"]
+            instant_win_up = odds["instant_win_odds"] + europe_error_odds / 2  # (odds["instant_win_odds"] + error_odds) if odds["instant_win_odds"] > odds["origin_win_odds"] else odds["instant_win_odds"]
+            instant_win_down = odds["instant_win_odds"] - europe_error_odds / 2  # odds["instant_win_odds"] if odds["instant_win_odds"] > odds["origin_win_odds"] else (odds["instant_win_odds"] - error_odds)
+            instant_even_up = odds["instant_even_odds"] + europe_error_odds / 2  # (odds["instant_even_odds"] + error_odds) if odds["instant_even_odds"] > odds["origin_even_odds"] else odds["instant_even_odds"]
+            instant_even_down = odds["instant_even_odds"] - europe_error_odds / 2  # odds["instant_even_odds"] if odds["instant_even_odds"] > odds["origin_even_odds"] else (odds["instant_even_odds"] - error_odds)
+            instant_lose_up = odds["instant_lose_odds"] + europe_error_odds / 2  # (odds["instant_lose_odds"] + error_odds) if odds["instant_lose_odds"] > odds["origin_lose_odds"] else odds["instant_lose_odds"]
+            instant_lose_down = odds["instant_lose_odds"] - europe_error_odds / 2  # odds["instant_lose_odds"] if odds["instant_lose_odds"] > odds["origin_lose_odds"] else (odds["instant_lose_odds"] - error_odds)
             query_sql = f"select match_group, home_team_full, visit_team_full, field_score from football_500 where origin_win_odds_{company_value} between {origin_win_down} and {origin_win_up} and origin_even_odds_{company_value} between {origin_even_down} and {origin_even_up} and origin_lose_odds_{company_value} between {origin_lose_down} and {origin_lose_up} and instant_win_odds_{company_value} between {instant_win_down} and {instant_win_up} and instant_even_odds_{company_value} between {instant_even_down} and {instant_even_up} and instant_lose_odds_{company_value} between {instant_lose_down} and {instant_lose_up} and match_time < '{match['match_time']}'"
             if "team_count" in match and match["team_count"] > 0 and match["match_round"] > match["team_count"] / 2:
                 if match["home_team_rank"] and match["visit_team_rank"]:
@@ -644,7 +644,7 @@ def parse_asia(match, url):
                         "输": 0,
                         "走": 0
                     }
-                    query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_url from football_500 where home_team_rank >= {match['home_team_rank']} and visit_team_rank <= {match['visit_team_rank']} and home_score <= {match['home_score']} and visit_score >= {match['visit_score']} and origin_pan_most = {match['origin_pan_most']} and instant_pan_most = {match['instant_pan_most']}"
+                    query_sql = f"select match_group, home_team_full, visit_team_full, field_score, instant_pan_most, match_url from football_500 where origin_pan_most = {match['origin_pan_most']} and instant_pan_most = {match['instant_pan_most']} and home_team_rank >= {match['home_team_rank']} and visit_team_rank <= {match['visit_team_rank']} and home_score <= {match['home_score']} and visit_score >= {match['visit_score']} "
                     cursor.execute(query_sql)
                     result = cursor.fetchall()
                     if len(result) > 0:
@@ -731,7 +731,7 @@ def parse_asia(match, url):
             all_concede = sorted([abs(x) for x in home_concede] + [abs(x) for x in visit_concede], reverse=True)
             if len(all_concede) >= 3:
                 if abs(match["instant_pan_most"]) >= all_concede[0] + Decimal('0.5'):
-                        print(f"\033[1;30;45m{'主队' if concede == 'home' else '客队'}让球高于历史让球数，预计{'主队' if concede == 'home' else '客队'}会打出盘口。\033[0m")
+                    print(f"\033[1;30;45m{'主队' if concede == 'home' else '客队'}让球高于历史让球数，预计{'主队' if concede == 'home' else '客队'}会打出盘口。\033[0m")
         # 对比状态，判断是否有反弹情况
         home_pan_status = []
         home_res_status = []
@@ -839,7 +839,7 @@ def parse_asia(match, url):
                     continue
                 home_score = int(score_lst[0])
                 visit_score = int(score_lst[1])
-                match_hash = r[0] + "_" + r[1] + "_" + r[2] + "_" + str(r[5]) # hashlib.md5((r[0] + r[1] + r[2]).encode()).hexdigest()
+                match_hash = r[0] + "_" + r[1] + "_" + r[2] + "_" + str(r[5])  # hashlib.md5((r[0] + r[1] + r[2]).encode()).hexdigest()
                 score_hash = f"{r[3]}_{match_hash}"
                 temp_result = "走"
                 if home_score + r[4] > visit_score:
@@ -1039,12 +1039,12 @@ def parse_size(match, url):
                     5: all_goal_exception[5],
                     6: all_goal_exception[6],
                 }
-                small_probability = size_dict[0]+size_dict[1]+size_dict[2]
+                small_probability = size_dict[0] + size_dict[1] + size_dict[2]
                 print(f"泊松分布2.5球小概率={round(small_probability * 100, 2)}%，2.5球大概率={round((1 - small_probability) * 100, 2)}%")
                 size_str = "泊松分布计算进球数，按概率从大到小排列：\n"
                 size_dict = dict(sorted(size_dict.items(), key=lambda x: x[1], reverse=True))
                 for key, value in size_dict.items():
-                    size_str += f"({key}球：概率{round(value*100, 2)}%)  "
+                    size_str += f"({key}球：概率{round(value * 100, 2)}%)  "
                 print(size_str)
             else:
                 print(f"{match['home_team']}主场或{match['visit_team']}客场比赛场次不足4场，不计算泊松分布")
@@ -1206,7 +1206,7 @@ def analyse_match():
         if len(is_finish) > 0:
             is_finish = is_finish[0]
             if is_finish == "完":
-                match_item["field_score"] = tr.xpath("./td[7]/div/a[1]/text()")[0] + ":" +  tr.xpath("./td[7]/div/a[3]/text()")[0]
+                match_item["field_score"] = tr.xpath("./td[7]/div/a[1]/text()")[0] + ":" + tr.xpath("./td[7]/div/a[3]/text()")[0]
         # if is_start != "未" and is_finish != "完":
         #     continue
         today = datetime.datetime.today()
@@ -1242,7 +1242,7 @@ def analyse_match():
         if "field_score" in match_item:
             print(f"\033[1;32m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。已结束比分: {match_item['field_score']}\033[0m")
         else:
-            print(f"\033[1;31m{match_item['match_group']}, 主队:{match_item['home_team']}{('(排名：' + str(match_item['home_team_rank']) + '、积分：' + str(match_item['home_score']) + ')') if match_item['home_team_rank'] else ''}, 客队:{match_item['visit_team']}{('(排名：' + str(match_item['visit_team_rank']) + '、积分：' + str(match_item['visit_score']) + ')') if match_item['visit_team_rank'] else ''}, 比赛时间:{match_item['match_time']}。\033[0m")
+            print(f"\033[1;31m{match_item['match_group']}, 主队:{match_item['home_team']}{('(排名：' + str(match_item['home_team_rank']) + '、积分：' + str(match_item['home_score']) + ')') if {'home_team_rank', 'home_score'}.issubset(match_item) else ''}, 客队:{match_item['visit_team']}{('(排名'+str(match_item['visit_team_rank']) + '、积分：' + str(match_item['visit_score']) + ')') if {'visit_team_rank', 'visit_score'}.issubset(match_item) else ''}, 比赛时间:{match_item['match_time']}。\033[0m")
         if "match_category" in match_item and match_item["match_category"] in match_map["group_inaccuracy"]:
             print("************************************不准确的联赛************************************")
             # continue
@@ -1271,7 +1271,6 @@ def analyse_detail(detail_url):
 if __name__ == '__main__':
     analyse_match()
     # analyse_detail("https://odds.500.com/fenxi/shuju-1073177.shtml")
-
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
 # 墨尔本骑士 https://odds.500.com/fenxi/shuju-1075552.shtml
