@@ -43,8 +43,8 @@ future_time = 2
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
-# db = pymysql.connect(host="47.99.134.39", port=3306, user="user", password="1111", database="lottery", charset='utf8mb4')
-db = pymysql.connect(host="192.168.9.68", port=3306, user="root", password="1111", database="lottery", charset='utf8mb4')
+db = pymysql.connect(host="47.99.134.39", port=3306, user="user", password="1111", database="lottery", charset='utf8mb4')
+# db = pymysql.connect(host="localhost", port=3306, user="root", password="1111", database="lottery", charset='utf8mb4')
 cursor = db.cursor()
 europe_map = {
     "威廉希尔": "wl",
@@ -416,7 +416,7 @@ def parse_europe(match, url):
             instant_even_down = odds["instant_even_odds"] - europe_error_odds / 2 # odds["instant_even_odds"] if odds["instant_even_odds"] > odds["origin_even_odds"] else (odds["instant_even_odds"] - error_odds)
             instant_lose_up = odds["instant_lose_odds"] + europe_error_odds / 2 # (odds["instant_lose_odds"] + error_odds) if odds["instant_lose_odds"] > odds["origin_lose_odds"] else odds["instant_lose_odds"]
             instant_lose_down = odds["instant_lose_odds"] - europe_error_odds / 2 # odds["instant_lose_odds"] if odds["instant_lose_odds"] > odds["origin_lose_odds"] else (odds["instant_lose_odds"] - error_odds)
-            query_sql = f"select match_group, home_team_full, visit_team_full, field_score from football_500 where origin_win_odds_{company_value} between {origin_win_down} and {origin_win_up} and origin_even_odds_{company_value} between {origin_even_down} and {origin_even_up} and origin_lose_odds_{company_value} between {origin_lose_down} and {origin_lose_up} and instant_win_odds_{company_value} between {instant_win_down} and {instant_win_up} and instant_even_odds_{company_value} between {instant_even_down} and {instant_even_up} and instant_lose_odds_{company_value} between {instant_lose_down} and {instant_lose_up} "
+            query_sql = f"select match_group, home_team_full, visit_team_full, field_score from football_500 where origin_win_odds_{company_value} between {origin_win_down} and {origin_win_up} and origin_even_odds_{company_value} between {origin_even_down} and {origin_even_up} and origin_lose_odds_{company_value} between {origin_lose_down} and {origin_lose_up} and instant_win_odds_{company_value} between {instant_win_down} and {instant_win_up} and instant_even_odds_{company_value} between {instant_even_down} and {instant_even_up} and instant_lose_odds_{company_value} between {instant_lose_down} and {instant_lose_up} and match_time < '{match['match_time']}'"
             if "team_count" in match and match["team_count"] > 0 and match["match_round"] > match["team_count"] / 2:
                 if match["home_team_rank"] and match["visit_team_rank"]:
                     query_sql += f" and home_team_rank {'<' if match['home_team_rank'] < match['visit_team_rank'] else '>'} visit_team_rank"
@@ -1269,8 +1269,8 @@ def analyse_detail(detail_url):
 
 
 if __name__ == '__main__':
-    # analyse_match()
-    analyse_detail("https://odds.500.com/fenxi/shuju-1073177.shtml")
+    analyse_match()
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1073177.shtml")
 
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
