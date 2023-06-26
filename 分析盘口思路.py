@@ -43,8 +43,8 @@ future_time = 2
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
-db = pymysql.connect(host="47.99.134.39", port=3306, user="user", password="1111", database="lottery", charset='utf8mb4')
-# db = pymysql.connect(host="localhost", port=3306, user="root", password="1111", database="lottery", charset='utf8mb4')
+# db = pymysql.connect(host="47.99.134.39", port=3306, user="user", password="1111", database="lottery", charset='utf8mb4')
+db = pymysql.connect(host="192.168.9.68", port=3306, user="root", password="1111", database="lottery", charset='utf8mb4')
 cursor = db.cursor()
 europe_map = {
     "威廉希尔": "wl",
@@ -461,9 +461,9 @@ def parse_europe(match, url):
         else:
             all_even_count += 1
         if "match_category" in match and match["match_category"] in key:
-            if team_map[key] == "赢":
+            if team_map[key] == "胜":
                 league_win_count += 1
-            elif team_map[key] == "输":
+            elif team_map[key] == "负":
                 league_lose_count += 1
             else:
                 league_even_count += 1
@@ -1269,8 +1269,8 @@ def analyse_detail(detail_url):
 
 
 if __name__ == '__main__':
-    analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1073177.shtml")
+    # analyse_match()
+    analyse_detail("https://odds.500.com/fenxi/shuju-1073177.shtml")
 
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
