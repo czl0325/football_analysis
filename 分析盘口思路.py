@@ -1049,6 +1049,7 @@ def parse_size(match, url):
             else:
                 print(f"{match['home_team']}主场或{match['visit_team']}客场比赛场次不足4场，不计算泊松分布")
     all_matches = {}
+    all_score = {}
     for size_tr in size_trs:
         company = size_tr.xpath("./td[2]/p/a/@title")
         if len(company) <= 0:
@@ -1120,22 +1121,40 @@ def parse_size(match, url):
                         key_str = f"{res[0]}_{res[1]}_{res[2]}"
                         if key_str not in all_matches:
                             all_matches[key_str] = int(score_lst[0]) + int(score_lst[1])
+                        if key_str not in all_score:
+                            all_score[key_str] = res[3]
             except Exception as e:
                 print(f"遇到错误={str(e)}, 网址{match['url']}")
                 continue
     all_matches = dict(sorted(all_matches.items(), key=lambda item: item[1]))
     size_dict = {}
+    score_dict = {}
     for key, value in all_matches.items():
         if value in size_dict:
             size_dict[value] += 1
         else:
             size_dict[value] = 1
+    for key, value in all_score.items():
+        if value in score_dict:
+            score_dict[value] += 1
+        else:
+            score_dict[value] = 1
     size_dict = dict(sorted(size_dict.items(), key=lambda item: item[1], reverse=True))
+    score_dict = dict(sorted(score_dict.items(), key=lambda item: item[1], reverse=True))
     if len(size_dict) > 0:
         size_str = "大小同赔计算，按概率从大到小排列：\n"
         for key, value in size_dict.items():
             size_str += f"({key}球：{value}场)  "
         print(size_str)
+    if len(score_dict) > 0:
+        score_str = "比分概率前三分别是：\n"
+        index = 0
+        for key, value in score_dict.items():
+            score_str += f"({key}：{value}场)  "
+            index += 1
+            if index >= 3:
+                break
+        print(score_str)
     if "match_type" in match:
         home_closed = []
         visit_closed = []
@@ -1242,7 +1261,9 @@ def analyse_match():
         if "field_score" in match_item:
             print(f"\033[1;32m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。已结束比分: {match_item['field_score']}\033[0m")
         else:
-            print(f"\033[1;31m{match_item['match_group']}, 主队:{match_item['home_team']}{('(排名：' + str(match_item['home_team_rank']) + '、积分：' + str(match_item['home_score']) + ')') if {'home_team_rank', 'home_score'}.issubset(match_item) else ''}, 客队:{match_item['visit_team']}{('(排名'+str(match_item['visit_team_rank']) + '、积分：' + str(match_item['visit_score']) + ')') if {'visit_team_rank', 'visit_score'}.issubset(match_item) else ''}, 比赛时间:{match_item['match_time']}。\033[0m")
+            str1 = ('(排名：' + str(match_item['home_team_rank']) + '、积分：' + str(match_item['home_score']) + ')') if {'home_team_rank', 'home_score'}.issubset(match_item) else ''
+            str2 = ('(排名'+str(match_item['visit_team_rank']) + '、积分：' + str(match_item['visit_score']) + ')') if {'visit_team_rank', 'visit_score'}.issubset(match_item) else ''
+            print(f"\033[1;31m{match_item['match_group']}, 主队:{match_item['home_team']}{str1}, 客队:{match_item['visit_team']}{str2}, 比赛时间:{match_item['match_time']}。\033[0m")
         if "match_category" in match_item and match_item["match_category"] in match_map["group_inaccuracy"]:
             print("************************************不准确的联赛************************************")
             # continue
@@ -1270,7 +1291,7 @@ def analyse_detail(detail_url):
 
 if __name__ == '__main__':
     analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1073177.shtml")
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1089979.shtml")
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
 # 墨尔本骑士 https://odds.500.com/fenxi/shuju-1075552.shtml
