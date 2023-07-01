@@ -1214,7 +1214,7 @@ def analyse_match():
     response1.encoding = "gb2312"
     html1 = etree.HTML(response1.text)
     tr_list = html1.xpath("//table[@id='table_match']/tbody/tr")
-    for tr in tr_list:
+    for index, tr in enumerate(tr_list):
         match_item = {}
         match_time = tr.xpath("./td[4]/text()")
         if len(match_time) <= 0:
@@ -1270,11 +1270,14 @@ def analyse_match():
             print("************************************不准确的联赛************************************")
             # continue
         match_item = parse_europe(match_item, detail_url.replace("shuju", "ouzhi"))
-        # time.sleep(3)
+        if index > 8:
+            time.sleep(3)
         match_item = parse_asia(match_item, detail_url.replace("shuju", "yazhi"))
-        # time.sleep(3)
+        if index > 8:
+            time.sleep(3)
         match_item = parse_size(match_item, detail_url.replace("shuju", "daxiao"))
-        # time.sleep(3)
+        if index > 8:
+            time.sleep(3)
     db.close()
 
 
@@ -1293,7 +1296,7 @@ def analyse_detail(detail_url):
 
 if __name__ == '__main__':
     analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1089979.shtml")
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1085998.shtml")
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
 # 墨尔本骑士 https://odds.500.com/fenxi/shuju-1075552.shtml
