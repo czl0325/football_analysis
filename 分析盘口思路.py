@@ -8,7 +8,6 @@ import datetime
 import scipy.stats as stats
 from decimal import Decimal
 from prettytable import PrettyTable
-from prettytable.colortable import ColorTable, Themes
 
 ###########################################################################
 # match的字段
@@ -107,6 +106,7 @@ match_map = {
     "group_inaccuracy": []
     # "group_inaccuracy": ["乌超", "葡甲", "比甲", "土超", "法丙"]
 }
+international_match = ["世界杯", "欧洲杯", "非洲杯", "世青赛", "欧青赛", "金杯赛"]
 
 
 def change_visit_result(result):
@@ -135,8 +135,8 @@ def parse_fundamentals(match, url):
     match_group = html2.xpath("//div[@class='odds_header']//table//tr/td[3]//a[@class='hd_name']/text()")
     if len(match_group) > 0:
         match["match_group"] = match_group[0].strip()
-        match_type = re.findall(r"(.*?)(第\d+轮|第.*?圈|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛)", match["match_group"])
-        match_category = re.findall(r"\d+/?\d+(.*?)(第\d+轮|第.*?圈|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛)", match["match_group"])
+        match_type = re.findall(r"(.*?)(第\d+轮|第.*?圈|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛|1/\d+决赛)", match["match_group"])
+        match_category = re.findall(r"\d+/?\d+(.*?)(第\d+轮|第.*?圈|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六|八|季军|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛|1/\d+决赛)", match["match_group"])
         match_round = re.findall(r"第(\d+)轮", match["match_group"])
         if len(match_type):
             match["match_type"] = match_type[0][0]
@@ -982,6 +982,15 @@ def parse_size(match, url):
                         visit_goals += int(score_lst[1])
                         visit_miss += int(score_lst[0])
                         visit_count += 1
+                    if match["match_category"] in international_match:
+                        if res[0] == match["visit_team"]:
+                            visit_goals += int(score_lst[0])
+                            visit_miss += int(score_lst[1])
+                            visit_count += 1
+                        if res[1] == match["home_team"]:
+                            home_goals += int(score_lst[1])
+                            home_miss += int(score_lst[0])
+                            home_count += 1
                     league_home_goals += int(score_lst[0])
                     league_visit_goals += int(score_lst[1])
                     if res[0] not in team_map:
@@ -1155,7 +1164,7 @@ def parse_size(match, url):
             if index >= 3:
                 break
         print(score_str)
-    if "match_type" in match:
+    if "match_type" in match and "match_category" in match and match["match_category"] not in international_match:
         home_closed = []
         visit_closed = []
         try:
@@ -1164,8 +1173,7 @@ def parse_size(match, url):
                     if team_map[team]["home_count"] <= 0 or team_map[team]["visit_count"] <= 0 or team_map[team]["home_count"] <= 0 or team_map[team]["visit_count"] <= 0 or team_map[match["visit_team"]]["visit_count"] <= 0 or team_map[match["home_team"]]["home_count"] <= 0:
                         continue
                     if abs(team_map[team]["home_goal"] / team_map[team]["home_count"] -
-                           team_map[match["home_team"]]["home_goal"] / team_map[match["home_team"]][
-                               "home_count"]) <= 0.1 and abs(
+                           team_map[match["home_team"]]["home_goal"] / team_map[match["home_team"]]["home_count"]) <= 0.1 and abs(
                         team_map[team]["home_miss"] / team_map[team]["home_count"] -
                         team_map[match["home_team"]]["home_miss"] / team_map[match["home_team"]][
                             "home_count"]) <= 0.1:
@@ -1291,7 +1299,7 @@ def analyse_detail(detail_url):
 
 if __name__ == '__main__':
     analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1089979.shtml")
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1096825.shtml")
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
 # 墨尔本骑士 https://odds.500.com/fenxi/shuju-1075552.shtml
