@@ -790,6 +790,14 @@ def parse_asia(match, url):
             print(f"\033[1;30;45m主队近5场未尝一胜，却让出{abs(match['instant_pan_most'])}球。预计主队赢球概率极大。\033[0m")
         elif visit_res_status.count("胜") <= 0 and home_res_status.count("胜") >= history_count - 3 and match["instant_pan_most"] >= 0.5:
             print(f"\033[1;30;45m客队近5场未尝一胜，却让出{abs(match['instant_pan_most'])}球。预计客队赢球概率极大。\033[0m")
+        query_sql = f"SELECT home_team_full, visit_team_full, field_score, instant_pan_most, match_pan, match_result FROM football_500 WHERE home_team_full = '{match['home_team']}' AND visit_team_full = '{match['visit_team']}' AND match_time < '{match['match_time']}' ORDER BY match_time DESC LIMIT 2;"
+        cursor.execute(query_sql)
+        result = cursor.fetchall()
+        if len(result) == 2:
+            if all(res[3] < 0 and res[4] == "赢" for res in result) and match["instant_pan_most"] > 0:
+                print(f"\033[1;30;45m客队历史都是被让且输球，如今却让主队{abs(match['instant_pan_most'])}球。预计客队赢球概率极大。\033[0m")
+            elif all(res[3] > 0 and res[4] == "输" for res in result) and match["instant_pan_most"] < 0:
+                print(f"\033[1;30;45m主队历史都是被让且输球，如今却让客队{abs(match['instant_pan_most'])}球。预计主队赢球概率极大。\033[0m")
     all_win_count = 0
     all_lose_count = 0
     all_run_count = 0
@@ -1304,7 +1312,7 @@ def analyse_detail(detail_url):
 
 if __name__ == '__main__':
     analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1096825.shtml")
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1084114.shtml")
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
 # 墨尔本骑士 https://odds.500.com/fenxi/shuju-1075552.shtml
