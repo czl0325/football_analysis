@@ -953,11 +953,18 @@ def parse_asia(match, url):
                 break
         print(score_str)
     match["asia_score_map"] = score_map
+    all_hit = []
     for key1 in match["asia_score_map"]:
         last_underscore_index = key1.rfind('_')
         key1 = key1[:last_underscore_index]
         if key1 in match["europe_score_map"]:
-            print(f"\033[0;32;40m欧赔和亚盘同时命中比赛：{key1}\033[0m")
+            all_hit.append(key1)
+    if len(all_hit) > 0:
+        hit_str = "欧赔和亚盘同时命中比赛："
+        for key in all_hit:
+            arr = key.split("_")
+            hit_str += f"({arr[1]}:{arr[2]}vs{arr[3]},比分={arr[0]})   "
+        print(f"\033[0;32;40m{hit_str}\033[0m")
     return match
 
 
