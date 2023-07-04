@@ -536,6 +536,10 @@ def parse_asia(match, url):
     instant_pan_map = {}
     for i in range(0, len(asia_trs)):
         asia_tr = asia_trs[i]
+        cid = asia_tr.xpath("./@id")
+        if len(cid) <= 0:
+            continue
+        cid = cid[0]
         company = asia_tr.xpath("./td[2]/p/a/@title")
         if len(company) <= 0:
             continue
@@ -587,6 +591,7 @@ def parse_asia(match, url):
         elif "18BET" in company.upper():
             company = "18BET"
         odds_item = {
+            "cid": cid,
             "company": company,
             "origin_odds": origin_odds,
             "origin_odds_home": origin_odds_home,
