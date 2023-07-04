@@ -530,12 +530,12 @@ def parse_asia(match, url):
     response = requests.get(url, headers=headers)
     response.encoding = "gb2312"
     html2 = etree.HTML(response.text)
-    size_trs = html2.xpath("//div[@id='table_cont']/table/tr")
+    asia_trs = html2.xpath("//div[@id='table_cont']/table/tr")
     odds_items = []
     origin_pan_map = {}
     instant_pan_map = {}
-    for i in range(0, len(size_trs)):
-        asia_tr = size_trs[i]
+    for i in range(0, len(asia_trs)):
+        asia_tr = asia_trs[i]
         company = asia_tr.xpath("./td[2]/p/a/@title")
         if len(company) <= 0:
             continue
@@ -599,6 +599,12 @@ def parse_asia(match, url):
         }
         odds_items.append(odds_item)
     match["odds_items"] = odds_items
+    interwetten_data = [item for item in odds_items if item["company"].lower() == "interwetten"]
+    if len(interwetten_data):
+        interwetten_data = interwetten_data[0]
+        if interwetten_data["origin_odds"] == interwetten_data["instant_odds"]:
+            if abs(interwetten_data["origin_odds_home"] - interwetten_data["instant_odds_home"]) <= 0.02 and abs(interwetten_data["origin_odds_visit"] - interwetten_data["instant_odds_visit"]) <= 0.02:
+                print(f"\033[1;30;45m注意，根据interwetten赔率，本场比赛大概率只有一球，最多2球。\033[0m")
     origin_pan_tuple = sorted(origin_pan_map.items(), key=lambda x: x[1], reverse=True)
     if len(origin_pan_tuple):
         match["origin_pan_most"] = origin_pan_tuple[0][0]
@@ -1319,10 +1325,11 @@ def analyse_detail(detail_url):
 
 if __name__ == '__main__':
     analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1084114.shtml")
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1093084.shtml")
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
 # 墨尔本骑士 https://odds.500.com/fenxi/shuju-1075552.shtml
 # 切尔西多特 https://odds.500.com/fenxi/shuju-1070059.shtml
 # 哥德堡盖斯 https://odds.500.com/fenxi/shuju-1084114.shtml
 # 阿甲飓风 https://odds.500.com/fenxi/shuju-1073177.shtml
+# 墨西哥卡塔尔 https://odds.500.com/fenxi/shuju-1093084.shtml
