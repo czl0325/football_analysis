@@ -5,6 +5,7 @@ import pymysql
 import re
 import time
 import datetime
+import json
 import scipy.stats as stats
 from decimal import Decimal
 from prettytable import PrettyTable
@@ -42,6 +43,16 @@ future_time = 2
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
+req_headers = {
+    "Sec-Ch-Ua": '"Not.A/Brand";v="8", "Chromium";v="114", "Google Chrome";v="114"',
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"macOS"',
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-origin",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+    "X-Requested-With": "XMLHttpRequest"
+}
 # print("程序启动中。。。")
 db = pymysql.connect(host="47.99.134.39", port=3306, user="user", password="1111", database="lottery", charset='utf8mb4')
 # db = pymysql.connect(host="localhost", port=3306, user="root", password="1111", database="lottery", charset='utf8mb4')
@@ -137,8 +148,8 @@ def parse_fundamentals(match, url):
     match_group = html2.xpath("//div[@class='odds_header']//table//tr/td[3]//a[@class='hd_name']/text()")
     if len(match_group) > 0:
         match["match_group"] = match_group[0].strip()
-        match_type = re.findall(r"(.*?)(第\d+轮|第.*?圈|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六强|八强|季军|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛|1/\d+决赛)", match["match_group"])
-        match_category = re.findall(r"\d+/?\d+(.*?)(第\d+轮|第.*?圈|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六强|八强|季军|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛|1/\d+决赛)", match["match_group"])
+        match_type = re.findall(r"(.*?)(第\d+轮|第.*?圈|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六强|八强|季军赛|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛|1/\d+决赛)", match["match_group"])
+        match_category = re.findall(r"\d+/?\d+(.*?)(第\d+轮|第.*?圈|分组赛|小组赛|资格赛|半.*?决赛|决赛|十六强|八强|季军赛|外.*?赛|排名|升|降|春|秋|16强|附加赛|欧会杯资格附加.*?赛|[A-F]联赛|1/\d+决赛)", match["match_group"])
         match_round = re.findall(r"第(\d+)轮", match["match_group"])
         if len(match_type):
             match["match_type"] = match_type[0][0]
@@ -609,7 +620,15 @@ def parse_asia(match, url):
         interwetten_data = interwetten_data[0]
         if interwetten_data["origin_odds"] == interwetten_data["instant_odds"]:
             if abs(interwetten_data["origin_odds_home"] - interwetten_data["instant_odds_home"]) <= 0.02 and abs(interwetten_data["origin_odds_visit"] - interwetten_data["instant_odds_visit"]) <= 0.02:
-                print(f"\033[1;30;45m注意，根据interwetten赔率，本场比赛大概率只有一球，最多2球。\033[0m")
+                req_headers.update({
+                    "Referer": match["url"]
+                })
+                change_arr = requests.get(f"https://odds.500.com/fenxi1/inc/yazhiajax.php?fid={match['fid']}&id={interwetten_data['cid']}&t={int(time.time() * 1000)}&r=1", headers=req_headers, timeout=30)
+                if change_arr:
+                    change_arr = json.loads(change_arr.text)
+                    if isinstance(change_arr, list):
+                        if len(change_arr) > 6:
+                            print(f"\033[1;30;45m注意，根据interwetten赔率，本场比赛大概率只有一球，最多2球。\033[0m")
     origin_pan_tuple = sorted(origin_pan_map.items(), key=lambda x: x[1], reverse=True)
     if len(origin_pan_tuple):
         match["origin_pan_most"] = origin_pan_tuple[0][0]
@@ -1295,6 +1314,10 @@ def analyse_match():
         if len(detail_url) <= 0:
             continue
         detail_url = "https:" + detail_url[0]
+        fid = re.findall(r"shuju-(\d+).shtml", detail_url)
+        if len(fid) <= 0:
+            continue
+        match_item["fid"] = fid[0]
         match_item["url"] = detail_url
         match_item = parse_fundamentals(match_item, detail_url)
         if "field_score" in match_item:
@@ -1320,6 +1343,8 @@ def analyse_match():
 
 def analyse_detail(detail_url):
     match_item = {"url": detail_url}
+    fid = re.findall(r"shuju-(\d+).shtml", detail_url)
+    match_item["fid"] = fid[0]
     match_item = parse_fundamentals(match_item, detail_url)
     if "field_score" in match_item:
         print(f"\033[1;32m{match_item['match_group']}, 主队:{match_item['home_team']}, 客队:{match_item['visit_team']}, 比赛时间:{match_item['match_time']}。已结束比分: {match_item['field_score']}\033[0m")
@@ -1333,7 +1358,7 @@ def analyse_detail(detail_url):
 
 if __name__ == '__main__':
     analyse_match()
-    # analyse_detail("https://odds.500.com/fenxi/shuju-1073978.shtml")
+    # analyse_detail("https://odds.500.com/fenxi/shuju-1073286.shtml")
 
 # 热那亚 https://odds.500.com/fenxi/shuju-1055325.shtml
 # 墨尔本骑士 https://odds.500.com/fenxi/shuju-1075552.shtml
