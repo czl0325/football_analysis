@@ -947,7 +947,7 @@ def parse_asia(match, url):
                 all_lose_count / (all_win_count + all_lose_count + all_run_count) * 100)
             print(f"\033[1;34m{result_str}\033[0m")
         else:
-            print(result_str)
+            print(f"\033[1;33m{result_str}\033[0m")
     else:
         if match["match_filter"]:
             print("亚盘未匹配到相同赔率相同水位的比赛")
@@ -966,7 +966,7 @@ def parse_asia(match, url):
                 league_lose_count / (league_win_count + league_lose_count + league_run_count) * 100)
             print(f"\033[1;34m{result_str}\033[0m")
         else:
-            print(result_str)
+            print(f"\033[1;33m{result_str}\033[0m")
     if len(score_map):
         new_score_map = {}
         for key in score_map:
