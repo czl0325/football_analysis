@@ -1246,7 +1246,7 @@ def parse_size(match, url):
                         for res in result1:
                             score_lst = res[0].split(":")
                             visit_closed_str += f"{match['home_team']}vs{team}：比分{score_lst[0]}:{score_lst[1]}\n"
-                        print(visit_closed_str)
+                print(visit_closed_str)
             if len(home_closed) > 0:
                 home_closed_str = f"与主队相近球队:{home_closed}\n"
                 home_closed_str += "对比客队与相似队伍战绩:\n"
@@ -1258,7 +1258,7 @@ def parse_size(match, url):
                         for res in result1:
                             score_lst = res[0].split(":")
                             home_closed_str += f"{team}vs{match['visit_team']}: 比分{score_lst[0]}:{score_lst[1]}\n"
-                        print(home_closed_str)
+                print(home_closed_str)
         except Exception as e:
             print(f"遇到错误={str(e)}, 网址{match['url']}")
     return match
